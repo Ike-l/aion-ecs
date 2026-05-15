@@ -11,7 +11,10 @@ pub mod prelude {
             }
         },
         query::{
-            Query
+            Query,
+            WORLD_RESOURCE_ID,
+            SHARED_WORLD_ACCESS_BUILDER,
+            UNIQUE_WORLD_ACCESS_BUILDER,
         }
     };
 }

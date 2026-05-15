@@ -1,12 +1,13 @@
 use std::{any::TypeId, collections::HashMap};
 
-use hecs::{Access, PreparedQuery, PreparedQueryBorrow, Query};
+use hecs::{Access, DynamicBundle, Entity, PreparedQuery, PreparedQueryBorrow, Query};
 use parking_lot::RwLock;
 
 use crate::prelude::TrackedAccess;
 
 pub mod tracked_access;
 
+#[derive(Default)]
 pub struct World {
     world: hecs::World,
     tracking: RwLock<HashMap<Vec<TypeId>, TrackedAccess>>
@@ -102,5 +103,9 @@ impl World {
 
     pub fn do_query<'a, Q: Query>(&'a self, prepared_query: &'a mut PreparedQuery<Q>) -> PreparedQueryBorrow<'a, Q> {
         prepared_query.query(&self.world)
+    }
+
+    pub fn insert(&mut self, entity: Entity, components: impl DynamicBundle) -> Result<(), hecs::NoSuchEntity> {
+        self.world.insert(entity, components)
     }
 }

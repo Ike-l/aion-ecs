@@ -7,12 +7,21 @@ use crate::prelude::World;
 
 pub const WORLD_RESOURCE_ID: ResourceId = ResourceId::StaticLabel("ECS World");
 
-pub const WORLD_ACCESS_BUILDER: AccessBuilder = AccessBuilder {
+pub const SHARED_WORLD_ACCESS_BUILDER: AccessBuilder = AccessBuilder {
     program_id: None,
     program_password: None,
     user_details: None,
     resource_id: Some(WORLD_RESOURCE_ID),
     resource_access: Some(ResourceAccess::Shared(1)),
+    resource_password: None
+};
+
+pub const UNIQUE_WORLD_ACCESS_BUILDER: AccessBuilder = AccessBuilder {
+    program_id: None,
+    program_password: None,
+    user_details: None,
+    resource_id: Some(WORLD_RESOURCE_ID),
+    resource_access: Some(ResourceAccess::Unique),
     resource_password: None
 };
 
@@ -40,7 +49,7 @@ impl<'a, Q: hecs::Query> Injection for Query<'a, Q> {
     fn claim_manual_access_builders(_accesses: Vec<&AccessBuilder>) -> Vec<usize> { vec![] }
 
     fn submit_access(mut prompted_accesses: Vec<AccessBuilder>) -> Result<Vec<FinalisedAccess>, AccessSubmissionError> {
-        let mut world_access_builder = WORLD_ACCESS_BUILDER;
+        let mut world_access_builder = SHARED_WORLD_ACCESS_BUILDER;
         if prompted_accesses.len() > 0 {
             let auto_access_builder = prompted_accesses.remove(0);
             world_access_builder = auto_access_builder;
