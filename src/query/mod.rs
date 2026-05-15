@@ -1,7 +1,7 @@
 use std::{any::TypeId, collections::HashMap, sync::Arc};
 
 use aion_program::prelude::{AccessBuilder, AccessSubmissionError, DerivedResult, FinalisedAccess, Injection, ProgramRegistry, ResolveResourceError, ResourceAccess, ResourceId, Shared};
-use hecs::{Access, PreparedQuery, PreparedQueryBorrow};
+use hecs::{Access, Entity, PreparedQuery, PreparedQueryBorrow};
 
 use crate::prelude::World;
 
@@ -60,8 +60,8 @@ impl<'a, Q: hecs::Query> Injection for Query<'a, Q> {
         Shared::<World>::submit_access(prompted_accesses)
     }
 
-    fn resolve_access<'new>(program_registry: Arc<ProgramRegistry>, derived_results: Vec<DerivedResult<'new>>) -> Result<Self::Item<'new>, ResolveResourceError> {
-        let world = Shared::<World>::resolve_access(program_registry, derived_results)?;
+    fn resolve_access<'new>(entity: Option<Entity>, program_registry: Arc<ProgramRegistry>, derived_results: Vec<DerivedResult<'new>>) -> Result<Self::Item<'new>, ResolveResourceError> {
+        let world = Shared::<World>::resolve_access(entity, program_registry, derived_results)?;
         let (prepared_query, access_ids) = world.as_ref().prepare_query().ok_or(ResolveResourceError::Resolving)?;
         Ok(Query {
             prepared_query,

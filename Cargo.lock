@@ -16,6 +16,7 @@ name = "aion-program"
 version = "0.1.0"
 dependencies = [
  "aion-state",
+ "hecs",
  "rand",
  "small_derive_deref",
  "tracing",
