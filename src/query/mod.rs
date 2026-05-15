@@ -46,7 +46,9 @@ impl<'a, Q: hecs::Query> Injection for Query<'a, Q> {
             world_access_builder = auto_access_builder;
         }
 
-        Shared::<World>::submit_access(vec![world_access_builder])
+        prompted_accesses.insert(0, world_access_builder);
+
+        Shared::<World>::submit_access(prompted_accesses)
     }
 
     fn resolve_access<'new>(program_registry: Arc<ProgramRegistry>, derived_results: Vec<DerivedResult<'new>>) -> Result<Self::Item<'new>, ResolveResourceError> {
