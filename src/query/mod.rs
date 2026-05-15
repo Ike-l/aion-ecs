@@ -1,9 +1,20 @@
 use std::{any::TypeId, collections::HashMap, sync::Arc};
 
-use aion_program::prelude::{AccessBuilder, AccessSubmissionError, DerivedResult, FinalisedAccess, Injection, ProgramRegistry, ResolveResourceError, Shared};
+use aion_program::prelude::{AccessBuilder, AccessSubmissionError, DerivedResult, FinalisedAccess, Injection, ProgramRegistry, ResolveResourceError, ResourceAccess, ResourceId, Shared};
 use hecs::{Access, PreparedQuery, PreparedQueryBorrow};
 
 use crate::prelude::World;
+
+const WORLD_RESOURCE_ID: ResourceId = ResourceId::StaticLabel("ECS World");
+
+const WORLD_ACCESS_BUILDER: AccessBuilder = AccessBuilder {
+    program_id: None,
+    program_password: None,
+    user_details: None,
+    resource_id: Some(WORLD_RESOURCE_ID),
+    resource_access: Some(ResourceAccess::Shared(1)),
+    resource_password: None
+};
 
 pub struct Query<'a, Q: hecs::Query> {
     prepared_query: PreparedQuery<Q>,
@@ -29,7 +40,12 @@ impl<'a, Q: hecs::Query> Injection for Query<'a, Q> {
     fn claim_manual_access_builders(_accesses: Vec<&AccessBuilder>) -> Vec<usize> { vec![] }
 
     fn submit_access(prompted_accesses: Vec<AccessBuilder>) -> Result<Vec<FinalisedAccess>, AccessSubmissionError> {
-        Shared::<World>::submit_access(prompted_accesses)
+        let mut world_access_builder = WORLD_ACCESS_BUILDER;
+        if let Some(auto_access_builder) = prompted_accesses.get(0) {
+            world_access_builder = auto_access_builder.clone();
+        }
+
+        Shared::<World>::submit_access(vec![world_access_builder])
     }
 
     fn resolve_access<'new>(program_registry: Arc<ProgramRegistry>, derived_results: Vec<DerivedResult<'new>>) -> Result<Self::Item<'new>, ResolveResourceError> {
