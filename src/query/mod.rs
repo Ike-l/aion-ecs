@@ -5,9 +5,9 @@ use hecs::{Access, PreparedQuery, PreparedQueryBorrow};
 
 use crate::prelude::World;
 
-const WORLD_RESOURCE_ID: ResourceId = ResourceId::StaticLabel("ECS World");
+pub const WORLD_RESOURCE_ID: ResourceId = ResourceId::StaticLabel("ECS World");
 
-const WORLD_ACCESS_BUILDER: AccessBuilder = AccessBuilder {
+pub const WORLD_ACCESS_BUILDER: AccessBuilder = AccessBuilder {
     program_id: None,
     program_password: None,
     user_details: None,
