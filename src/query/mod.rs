@@ -39,10 +39,11 @@ impl<'a, Q: hecs::Query> Injection for Query<'a, Q> {
 
     fn claim_manual_access_builders(_accesses: Vec<&AccessBuilder>) -> Vec<usize> { vec![] }
 
-    fn submit_access(prompted_accesses: Vec<AccessBuilder>) -> Result<Vec<FinalisedAccess>, AccessSubmissionError> {
+    fn submit_access(mut prompted_accesses: Vec<AccessBuilder>) -> Result<Vec<FinalisedAccess>, AccessSubmissionError> {
         let mut world_access_builder = WORLD_ACCESS_BUILDER;
-        if let Some(auto_access_builder) = prompted_accesses.get(0) {
-            world_access_builder = auto_access_builder.clone();
+        if prompted_accesses.len() > 0 {
+            let auto_access_builder = prompted_accesses.remove(0);
+            world_access_builder = auto_access_builder;
         }
 
         Shared::<World>::submit_access(vec![world_access_builder])
