@@ -1,6 +1,6 @@
 use std::{any::TypeId, collections::HashMap};
 
-use hecs::{Access, Bundle, DynamicBundle, Entity, PreparedQuery, PreparedQueryBorrow, Query};
+use hecs::{Access, Bundle, ComponentRef, DynamicBundle, Entity, PreparedQuery, PreparedQueryBorrow, Query};
 use parking_lot::RwLock;
 
 use crate::prelude::TrackedAccess;
@@ -111,5 +111,9 @@ impl World {
 
     pub fn remove<B: Bundle + 'static>(&mut self, entity: Entity) -> Result<B, hecs::ComponentError> {
         self.world.remove::<B>(entity)
+    }
+
+    pub fn get<'a, T: ComponentRef<'a>>(&'a self, entity: Entity) -> Result<T::Ref, hecs::ComponentError> {
+        self.world.get::<T>(entity)
     }
 }
