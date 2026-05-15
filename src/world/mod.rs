@@ -1,4 +1,4 @@
-use std::{any::TypeId, collections::{HashMap, HashSet}};
+use std::{any::TypeId, collections::HashMap};
 
 use hecs::{Access, PreparedQuery, PreparedQueryBorrow, Query};
 use parking_lot::RwLock;
