@@ -1,20 +1,33 @@
-// Query<Q, SharedWorld/UniqueWorld
 pub mod world;
-pub mod query;
+pub mod injection;
 
 pub mod prelude {
     pub use super::{
         world::{
             World,
-            tracked_access::{
-                TrackedAccess
-            }
+            prepare_get_shared::{
+                PrepareGetShared
+            },
+            prepare_get_unique::{
+                PrepareGetUnique
+            },
+            prepared_query::{
+                PreparedQuery
+            },
+            archetype_tracker::{
+                ArchetypeTracker,
+                type_tracker::{
+                    TypeTracker,
+                    type_access::{
+                        TypeAccess
+                    },
+                },
+            },
         },
-        query::{
-            Query,
-            WORLD_RESOURCE_ID,
-            SHARED_WORLD_ACCESS_BUILDER,
-            UNIQUE_WORLD_ACCESS_BUILDER,
+        injection::{
+            query::{
+                Query
+            }
         }
     };
 }
