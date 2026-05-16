@@ -1,6 +1,6 @@
 use std::{any::TypeId, sync::Arc};
 
-use hecs::{Component, ComponentError, ComponentRef, Entity, Query};
+use hecs::{Bundle, Component, ComponentError, ComponentRef, DynamicBundle, Entity, Query};
 use parking_lot::Mutex;
 
 use crate::prelude::{ArchetypeTracker, PrepareGetShared, PrepareGetUnique, PreparedQuery, TypeAccess};
@@ -10,6 +10,7 @@ pub mod prepare_get_unique;
 pub mod archetype_tracker;
 pub mod prepared_query;
 
+#[derive(Default)]
 pub struct World {
     hecs_world: hecs::World,
     tracker: Arc<Mutex<ArchetypeTracker>>
@@ -104,4 +105,12 @@ impl World {
     pub(crate) unsafe fn get<'a, T: ComponentRef<'a>>(&'a self, entity: Entity) -> Result<<T as ComponentRef<'a>>::Ref, ComponentError> {
         self.hecs_world.get::<T>(entity)
     }
+
+    pub fn insert(&mut self, entity: Entity, components: impl DynamicBundle) -> Result<(), hecs::NoSuchEntity> {
+        self.hecs_world.insert(entity, components)
+    }
+
+    pub fn remove<B: Bundle + 'static>(&mut self, entity: Entity) -> Result<B, hecs::ComponentError> {
+        self.hecs_world.remove::<B>(entity)
+    }    
 }
