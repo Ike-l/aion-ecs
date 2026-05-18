@@ -114,7 +114,7 @@ impl World {
         self.hecs_world.remove::<B>(entity)
     }    
 
-    pub fn satisfies<Q: Query>(&self, entity: Entity) -> bool {
-        self.hecs_world.satisfies::<Q>(entity)
+    pub fn has<T: Component>(&self, entity: Entity) -> Option<bool> {
+        Some(self.hecs_world.entity(entity).ok()?.has::<T>())
     }
 }
