@@ -113,4 +113,8 @@ impl World {
     pub fn remove<B: Bundle + 'static>(&mut self, entity: Entity) -> Result<B, hecs::ComponentError> {
         self.hecs_world.remove::<B>(entity)
     }    
+
+    pub fn satisfies<Q: Query>(&self, entity: Entity) -> bool {
+        self.hecs_world.satisfies::<Q>(entity)
+    }
 }
