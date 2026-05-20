@@ -21,6 +21,7 @@ dependencies = [
  "parking_lot",
  "rand",
  "small_derive_deref",
+ "tokio",
  "tracing",
 ]
 

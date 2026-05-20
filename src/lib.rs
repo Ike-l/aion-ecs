@@ -37,9 +37,6 @@ pub mod prelude {
             get_unique_world::{
                 GetUniqueWorld
             },
-            get_world_error::{
-                GetWorldError
-            }
         }
     };
 }
