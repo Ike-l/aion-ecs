@@ -34,6 +34,9 @@ pub mod prelude {
             get_shared_world::{
                 GetSharedWorld
             },
+            get_unique_world::{
+                GetUniqueWorld
+            },
             get_world_error::{
                 GetWorldError
             }
