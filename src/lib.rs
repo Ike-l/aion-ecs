@@ -1,5 +1,6 @@
 pub mod world;
 pub mod injection;
+pub mod impl_program_registry;
 
 pub mod prelude {
     pub use super::{
@@ -27,6 +28,14 @@ pub mod prelude {
         injection::{
             query::{
                 Query
+            }
+        },
+        impl_program_registry::{
+            get_shared_world::{
+                GetSharedWorld
+            },
+            get_world_error::{
+                GetWorldError
             }
         }
     };
