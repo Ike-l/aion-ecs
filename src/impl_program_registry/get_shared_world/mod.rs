@@ -7,14 +7,14 @@ use crate::prelude::{GetWorldError, World};
 
 pub trait GetSharedWorld {
     fn get_shared_world(
-        self: &Arc<Self>, 
+        self: &Self, 
         runtime: Option<&Runtime>
     ) -> Result<Shared<'_, World>, GetWorldError>;
 }
 
 impl GetSharedWorld for Arc<ProgramRegistry> {
     fn get_shared_world(
-        self: &Arc<Self>, 
+        self: &Self, 
         runtime: Option<&Runtime>
     ) -> Result<Shared<'_, World>, GetWorldError> {
         match runtime {

@@ -7,14 +7,14 @@ use crate::prelude::{GetWorldError, World};
 
 pub trait GetUniqueWorld {
     fn get_unique_world(
-        self: &Arc<Self>, 
+        self: &Self, 
         runtime: Option<&Runtime>
     ) -> Result<Unique<'_, World>, GetWorldError>;
 }
 
 impl GetUniqueWorld for Arc<ProgramRegistry> {
     fn get_unique_world(
-        self: &Arc<Self>, 
+        self: &Self, 
         runtime: Option<&Runtime>
     ) -> Result<Unique<'_, World>, GetWorldError> {
         match runtime {
