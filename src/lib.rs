@@ -34,6 +34,9 @@ pub mod prelude {
             },
             get_unique::{
                 GetUnique
+            },
+            get_owned::{
+                GetOwned
             }
         },
         impl_program_registry::{
