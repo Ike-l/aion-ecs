@@ -3,10 +3,10 @@ use std::sync::Arc;
 use aion_program::prelude::{AccessBuilder, AccessSubmissionError, DerivedResult, FinalisedAccess, Injection, ProgramRegistry, ResolveResourceError, Shared};
 use hecs::{Component, Entity, Ref};
 
-use crate::prelude::{PrepareGetShared, World};
+use crate::prelude::{PreparedGetShared, World};
 
 pub struct GetShared<'a, T: Component> {
-    prepared_get_shared: PrepareGetShared<T>,
+    prepared_get_shared: PreparedGetShared<T>,
     world: Shared<'a, World>,
 }
 

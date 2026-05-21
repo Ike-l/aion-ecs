@@ -3,10 +3,10 @@ use std::{any::TypeId, sync::Arc};
 use hecs::{Bundle, Component, ComponentError, ComponentRef, DynamicBundle, Entity, Query};
 use parking_lot::Mutex;
 
-use crate::prelude::{ArchetypeTracker, PrepareGetShared, PrepareGetUnique, PreparedQuery, TypeAccess};
+use crate::prelude::{ArchetypeTracker, PreparedGetShared, PreparedGetUnique, PreparedQuery, TypeAccess};
 
-pub mod prepare_get_shared;
-pub mod prepare_get_unique;
+pub mod prepared_get_shared;
+pub mod prepared_get_unique;
 pub mod archetype_tracker;
 pub mod prepared_query;
 
@@ -90,16 +90,16 @@ impl World {
         
     }
     
-    pub fn prepare_get_shared<'a, T: Component>(&'a self, entity: Entity) -> Option<PrepareGetShared<T>> {
+    pub fn prepare_get_shared<'a, T: Component>(&'a self, entity: Entity) -> Option<PreparedGetShared<T>> {
         let type_access = TypeAccess::Shared(1);
         let get_tracker = self.prepare_get::<T>(entity, type_access)?;
-        Some(PrepareGetShared::new(Arc::clone(&self.tracker), get_tracker, entity))
+        Some(PreparedGetShared::new(Arc::clone(&self.tracker), get_tracker, entity))
     }
 
-    pub fn prepare_get_unique<'a, T: Component>(&'a self, entity: Entity) -> Option<PrepareGetUnique<T>> {
+    pub fn prepare_get_unique<'a, T: Component>(&'a self, entity: Entity) -> Option<PreparedGetUnique<T>> {
         let type_access = TypeAccess::Unique;
         let get_tracker = self.prepare_get::<T>(entity, type_access)?;
-        Some(PrepareGetUnique::new(Arc::clone(&self.tracker), get_tracker, entity))
+        Some(PreparedGetUnique::new(Arc::clone(&self.tracker), get_tracker, entity))
     }
 
     pub(crate) unsafe fn get<'a, T: ComponentRef<'a>>(&'a self, entity: Entity) -> Result<<T as ComponentRef<'a>>::Ref, ComponentError> {

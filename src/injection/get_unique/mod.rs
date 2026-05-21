@@ -3,10 +3,10 @@ use std::sync::Arc;
 use aion_program::prelude::{AccessBuilder, AccessSubmissionError, DerivedResult, FinalisedAccess, Injection, ProgramRegistry, ResolveResourceError, Shared};
 use hecs::{Component, Entity, RefMut};
 
-use crate::prelude::{PrepareGetUnique, World};
+use crate::prelude::{PreparedGetUnique, World};
 
 pub struct GetUnique<'a, T: Component> {
-    prepared_get_unique: PrepareGetUnique<T>,
+    prepared_get_unique: PreparedGetUnique<T>,
     world: Shared<'a, World>,
 }
 

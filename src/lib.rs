@@ -6,11 +6,11 @@ pub mod prelude {
     pub use super::{
         world::{
             World,
-            prepare_get_shared::{
-                PrepareGetShared
+            prepared_get_shared::{
+                PreparedGetShared
             },
-            prepare_get_unique::{
-                PrepareGetUnique
+            prepared_get_unique::{
+                PreparedGetUnique
             },
             prepared_query::{
                 PreparedQuery
