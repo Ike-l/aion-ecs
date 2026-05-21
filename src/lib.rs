@@ -28,6 +28,12 @@ pub mod prelude {
         injection::{
             query::{
                 Query
+            },
+            get_shared::{
+                GetShared
+            },
+            get_unique::{
+                GetUnique
             }
         },
         impl_program_registry::{
