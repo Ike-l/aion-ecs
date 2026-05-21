@@ -19,7 +19,7 @@ impl<'a, Q: hecs::Query> Query<'a, Q> {
 impl<'a, Q: hecs::Query> Injection for Query<'a, Q> {
     type Item<'new> = Query<'new, Q>;
 
-    fn claim_manual_access_builders(_accesses: Vec<&AccessBuilder>) -> Vec<usize> { vec![] }
+    fn claim_manual_access_builders(accesses: Vec<&AccessBuilder>) -> Vec<usize> { Shared::<World>::claim_manual_access_builders(accesses) }
 
     fn submit_access(prompted_accesses: Vec<AccessBuilder>) -> Result<Vec<FinalisedAccess>, AccessSubmissionError> {
         Shared::<World>::submit_access(prompted_accesses)

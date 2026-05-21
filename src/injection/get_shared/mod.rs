@@ -19,7 +19,7 @@ impl<'a, T: Component> GetShared<'a, T> {
 impl<'a, T: Component> Injection for GetShared<'a, T> {
     type Item<'new> = GetShared<'new, T>;
 
-    fn claim_manual_access_builders(_accesses: Vec<&AccessBuilder>) -> Vec<usize> { vec![] }
+    fn claim_manual_access_builders(accesses: Vec<&AccessBuilder>) -> Vec<usize> { Shared::<World>::claim_manual_access_builders(accesses) }
 
     fn submit_access(prompted_accesses: Vec<AccessBuilder>) -> Result<Vec<FinalisedAccess>, AccessSubmissionError> {
         Shared::<World>::submit_access(prompted_accesses)
