@@ -27,7 +27,7 @@ impl<'a, Q: hecs::Query> Injection for Query<'a, Q> {
 
     fn resolve_access<'new>(entity: Option<Entity>, program_registry: Arc<ProgramRegistry>, derived_results: Vec<DerivedResult<'new>>) -> Result<Self::Item<'new>, ResolveResourceError> {
         let world = Shared::<World>::resolve_access(entity, program_registry, derived_results)?;
-        let prepared_query = world.prepare_query::<Q>().ok_or(ResolveResourceError::Resolving)?;
+        let prepared_query = world.prepare_query::<Q>().ok_or(ResolveResourceError::Resolving("World failed to Prepare".to_owned()))?;
 
         Ok(Query {
             prepared_query,

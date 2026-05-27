@@ -27,7 +27,7 @@ impl<'a, T: Component> Injection for GetShared<'a, T> {
 
     fn resolve_access<'new>(entity: Option<Entity>, program_registry: Arc<ProgramRegistry>, derived_results: Vec<DerivedResult<'new>>) -> Result<Self::Item<'new>, ResolveResourceError> {
         let world = Shared::<World>::resolve_access(entity, program_registry, derived_results)?;
-        let prepared_get_shared = world.prepare_get_shared::<T>(entity.ok_or(ResolveResourceError::Resolving)?).ok_or(ResolveResourceError::Resolving)?;
+        let prepared_get_shared = world.prepare_get_shared::<T>(entity.ok_or(ResolveResourceError::Resolving("Expected Entity".to_owned()))?).ok_or(ResolveResourceError::Resolving("World failed to Prepare".to_owned()))?;
 
         Ok(GetShared {
             prepared_get_shared,
