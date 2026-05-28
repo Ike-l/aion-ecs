@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
-use aion_program::prelude::{AccessBuilder, AccessSubmissionError, DerivedResult, FinalisedAccess, Injection, ProgramRegistry, ResolveResourceError, Shared};
+use aion_program::prelude::{AccessBuilder, AccessSubmissionError, DerivedError, FinalisedAccess, Injection, ProgramRegistry, ResolveResourceError, ResolvedResource, Shared};
+use anyhow::anyhow;
 use hecs::{Component, Entity, RefMut};
 
 use crate::prelude::{PreparedGetUnique, World};
@@ -25,9 +26,14 @@ impl<'a, T: Component> Injection for GetUnique<'a, T> {
         Shared::<World>::submit_access(prompted_accesses)
     }
 
-    fn resolve_access<'new>(entity: Option<Entity>, program_registry: Arc<ProgramRegistry>, derived_results: Vec<DerivedResult<'new>>) -> Result<Self::Item<'new>, ResolveResourceError> {
+    fn resolve_access<'new>(entity: Option<Entity>, program_registry: Arc<ProgramRegistry>, derived_results: Vec<Result<ResolvedResource<'new>, DerivedError>>) -> Result<Self::Item<'new>, ResolveResourceError> {
         let world = Shared::<World>::resolve_access(entity, program_registry, derived_results)?;
-        let prepared_get_unique = world.prepare_get_unique::<T>(entity.ok_or(ResolveResourceError::Resolving("Expected Entity".to_owned()))?).ok_or(ResolveResourceError::Resolving("World failed to Prepare".to_owned()))?;
+        let prepared_get_unique = world.prepare_get_unique::<T>(
+            entity
+                .ok_or(ResolveResourceError::ExpectedEntity)?
+            ).ok_or(
+                ResolveResourceError::CanWaitUnknownError(anyhow!("World failed to Prepare"))
+            )?;
 
         Ok(GetUnique {
             prepared_get_unique,

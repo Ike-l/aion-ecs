@@ -1,6 +1,6 @@
 use std::{marker::PhantomData, sync::Arc};
 
-use aion_program::prelude::{AccessBuilder, AccessSubmissionError, DerivedResult, FinalisedAccess, Injection, ProgramRegistry, ResolveResourceError};
+use aion_program::prelude::{AccessBuilder, AccessSubmissionError, DerivedError, FinalisedAccess, Injection, ProgramRegistry, ResolveResourceError, ResolvedResource};
 use hecs::{Component, Entity};
 
 use crate::prelude::{GetShared, };
@@ -21,7 +21,7 @@ impl<I, T: Component> Injection for GetOwned<I, T>
         GetShared::<T>::submit_access(prompted_accesses)
     }
 
-    fn resolve_access<'new>(entity: Option<Entity>, program_registry: Arc<ProgramRegistry>, derived_results: Vec<DerivedResult<'new>>) -> Result<Self::Item<'new>, ResolveResourceError> {
+    fn resolve_access<'new>(entity: Option<Entity>, program_registry: Arc<ProgramRegistry>, derived_results: Vec<Result<ResolvedResource<'new>, DerivedError>>) -> Result<Self::Item<'new>, ResolveResourceError> {
         let item = (*GetShared::<T>::resolve_access(entity, program_registry, derived_results)?.get_shared()).to_owned();
 
         Ok(GetOwned {
