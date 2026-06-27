@@ -1,120 +1,51 @@
-use std::{any::TypeId, sync::Arc};
+use crate::prelude::{ArchetypeId, ArchetypeRegistry, Query};
 
-use hecs::{Bundle, Component, ComponentError, ComponentRef, DynamicBundle, Entity, Query};
-use parking_lot::Mutex;
-
-use crate::prelude::{ArchetypeTracker, PreparedGetShared, PreparedGetUnique, PreparedQuery, TypeAccess};
-
-pub mod prepared_get_shared;
-pub mod prepared_get_unique;
-pub mod archetype_tracker;
-pub mod prepared_query;
+pub mod archetype_registry;
+pub mod query;
 
 #[derive(Default)]
 pub struct World {
-    hecs_world: hecs::World,
-    tracker: Arc<Mutex<ArchetypeTracker>>
+    archetype_registry: ArchetypeRegistry,
 }
+
 
 impl World {
-    /// # Safety
-    /// 
-    /// Ensure Accesses are tracked
-    /// 
-    /// Use `prepare_query`
-    pub(crate) unsafe fn query<Q: Query>(&self) -> hecs::QueryBorrow<'_, Q> {
-        self.hecs_world.query::<Q>()
-    }
+    // Query
+    // impl Query on (), &T, &mut T, [(A,), (A, .. B) where A, .. B : Query], Option<T>, Entity, Or<L, R>, With<Q>, Without<Q>, Satisfies<Q>
+    // Entity: yields (Entity, QueryYield)
+    // Or: Holds either L, R or L,R
+    // With: Skip entities not satisfying 
+    // Without: Skip entities satisfying 
+    // Satisfies: Iterable over all entities with bools for satisfying  
 
-    pub fn prepare_query<Q: Query>(&self) -> Option<PreparedQuery<Q>> {
-        let mut tracker = self.tracker.lock();
-        let mut query_tracker = ArchetypeTracker::default();
+    // Query::? 
 
-        let mut conflict = false;
-        for archetype in self.hecs_world.archetypes() {
-            if conflict { continue; }
-            if archetype.access::<Q>().is_some() {
-                if conflict { continue; }
-                <<Q as Query>::Fetch as hecs::Fetch>::for_each_borrow(|type_id, unique| {
-                    if conflict { return; }
-                    if archetype.has_dynamic(type_id) {
-                        let archetype_signature = archetype.component_types().collect::<Vec<_>>();
-                        let type_access = if unique { TypeAccess::Unique } else { TypeAccess::Shared(1) };
-                        
-                        let ok = tracker.try_access(archetype_signature, type_id, type_access);
-                        
-                        if ok {
-                            let archetype_signature = archetype.component_types().collect::<Vec<_>>();
-                            let type_access = if unique { TypeAccess::Unique } else { TypeAccess::Shared(1) };
+    // what types
+    // filter entities
+    // pub fn query<Q: Query>(&self) -> QueryBorrow<Q>
 
-                            query_tracker.try_access(archetype_signature, type_id, type_access);
-                        } else {
-                            conflict = true;
-                        }
-                    }
-                });
-            }
-        }
+    pub fn query<Q: Query>(&self) {
+        let mut archetype = ArchetypeId::default();
+        Q::request_archetype(&mut archetype);
 
-        if conflict {
-            tracker.split(&mut query_tracker);
-            None
-        } else {
-            Some(PreparedQuery::new(Arc::clone(&self.tracker), query_tracker))
-        }
-    }
+        let mut yields = Vec::default();
+        Q::declare_yield(&mut yields);
 
-    fn prepare_get<'a, T: Component>(&'a self, entity: Entity, type_access: TypeAccess) -> Option<ArchetypeTracker> {
-        let target_archetypes = self.hecs_world.archetypes().find(|archetype| {
-            archetype.ids().contains(&entity.id())
-        })?;
-
-        let type_id = TypeId::of::<T>();
-        
-        let archetype_id = target_archetypes.component_types().collect::<Vec<_>>();
-
-        let mut tracker = self.tracker.lock();
-        
-        
-        let ok = tracker.try_access(archetype_id, type_id, type_access.clone());
-        
-        if !ok {
-            return None;
-        }
-
-        let mut get_tracker = ArchetypeTracker::default();
-        let archetype_id = target_archetypes.component_types().collect::<Vec<_>>();
-        get_tracker.try_access(archetype_id, type_id, type_access);
-
-        Some(get_tracker)
-        
-    }
-    
-    pub fn prepare_get_shared<'a, T: Component>(&'a self, entity: Entity) -> Option<PreparedGetShared<T>> {
-        let type_access = TypeAccess::Shared(1);
-        let get_tracker = self.prepare_get::<T>(entity, type_access)?;
-        Some(PreparedGetShared::new(Arc::clone(&self.tracker), get_tracker, entity))
-    }
-
-    pub fn prepare_get_unique<'a, T: Component>(&'a self, entity: Entity) -> Option<PreparedGetUnique<T>> {
-        let type_access = TypeAccess::Unique;
-        let get_tracker = self.prepare_get::<T>(entity, type_access)?;
-        Some(PreparedGetUnique::new(Arc::clone(&self.tracker), get_tracker, entity))
-    }
-
-    pub(crate) unsafe fn get<'a, T: ComponentRef<'a>>(&'a self, entity: Entity) -> Result<<T as ComponentRef<'a>>::Ref, ComponentError> {
-        self.hecs_world.get::<T>(entity)
-    }
-
-    pub fn insert(&mut self, entity: Entity, components: impl DynamicBundle) -> Result<(), hecs::NoSuchEntity> {
-        self.hecs_world.insert(entity, components)
-    }
-
-    pub fn remove<B: Bundle + 'static>(&mut self, entity: Entity) -> Result<B, hecs::ComponentError> {
-        self.hecs_world.remove::<B>(entity)
-    }    
-
-    pub fn has<T: Component>(&self, entity: Entity) -> Option<bool> {
-        Some(self.hecs_world.entity(entity).ok()?.has::<T>())
+        self.archetype_registry.find_at_least(&archetype);
     }
 }
+
+/*
+resolve query: Find all archetypes with at least `types`
+get the type maps for each `type`
+
+some filter entities: for each type map, for each entity, yield type
+none filter entities: for each type map, yield type
+
+
+Query: 
+result is iterator over either (Entity, QueryYield) or QueryYield
+declares which type maps
+
+
+*/
