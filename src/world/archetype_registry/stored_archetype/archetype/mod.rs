@@ -7,4 +7,6 @@ use crate::prelude::{StoredTypeMap, TypeMapAccess};
 pub mod stored_type_map;
 pub mod type_map_access;
 
-pub type Archetype = AutoRegistry<TypeId, StoredTypeMap, TypeMapAccess>;
+pub struct Archetype {
+    type_map_registry: AutoRegistry<TypeId, StoredTypeMap, TypeMapAccess>
+} 

@@ -6,4 +6,6 @@ pub mod entity_id;
 pub mod stored_type;
 pub mod entity_access;
 
-pub type TypeMap = AutoRegistry<EntityId, StoredType, EntityAccess>;
+pub struct TypeMap {
+    type_registry: AutoRegistry<EntityId, StoredType, EntityAccess>
+}
