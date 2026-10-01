@@ -4,8 +4,21 @@ use aion_state::prelude::{Accesses, ReservationStorage};
 
 use crate::prelude::{InnerAccessStorage, ReserverId};
 
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(bound(
+    serialize = "ValueId: serde::Serialize + std::cmp::Eq + std::hash::Hash",
+    deserialize = "ValueId: serde::Deserialize<'de> + std::cmp::Eq + std::hash::Hash"
+))]
 pub struct InnerReservationStorage<ValueId> {
     inner: HashMap<ReserverId, Accesses<InnerAccessStorage<ValueId>>>
+}
+
+impl<ValueId> Default for InnerReservationStorage<ValueId> {
+    fn default() -> Self {
+        Self {
+            inner: HashMap::new()
+        }
+    }
 }
 
 impl<ValueId> ReservationStorage for InnerReservationStorage<ValueId> {
