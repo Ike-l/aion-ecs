@@ -14,7 +14,31 @@ pub mod password;
 pub mod prelude {
     pub use super::{
         world::{
-            World
+            World,
+            archetype_id::{
+                ArchetypeId
+            },
+            archetype_storage::{
+                ArchetypeStorage,
+                resource_id::{
+                    ResourceId
+                },
+                stored_resource_storage::{
+                    StoredResourceStorage,
+                    resource_storage::{
+                        ResourceStorage,
+                        stored_resource::{
+                            StoredResource,
+                            resource::{
+                                Resource
+                            }
+                        },
+                        entity_id::{
+                            EntityId
+                        },
+                    }
+                }
+            }
         },
         inner_reservation_storage::{
             InnerReservationStorage

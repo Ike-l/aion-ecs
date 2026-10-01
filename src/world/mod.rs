@@ -1,15 +1,18 @@
 use aion_state::prelude::Registry;
 
-use crate::prelude::{InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage};
+use crate::prelude::{ArchetypeId, ArchetypeStorage, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage};
+
+pub mod archetype_storage;
+pub mod archetype_id;
 
 pub struct World {
     archetypes: Registry<
-        InnerStorage, 
-        InnerReservationStorage<ValueId>, 
-        InnerAccessStorage<ValueId>, 
+        ArchetypeStorage, 
+        InnerReservationStorage<ArchetypeId>, 
+        InnerAccessStorage<ArchetypeId>, 
         InnerCredentialStorage,
-        InnerWhitelistStorage<ValueId>,
-        InnerBlacklistStorage<ValueId>,
-        InnerControlStorage<ValueId>
+        InnerWhitelistStorage<ArchetypeId>,
+        InnerBlacklistStorage<ArchetypeId>,
+        InnerControlStorage<ArchetypeId>
     >
 }
