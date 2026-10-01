@@ -8,6 +8,14 @@ pub struct InnerAccessStorage<ValueId> {
     inner: HashMap<ValueId, Access>
 }
 
+impl<ValueId> Default for InnerAccessStorage<ValueId> {
+    fn default() -> Self {
+        Self {
+            inner: HashMap::new()
+        }
+    }
+}
+
 impl<ValueId: Eq + Hash> AccessStorage for InnerAccessStorage<ValueId> {
     type ValueId = ValueId;
     type Access = Access;
