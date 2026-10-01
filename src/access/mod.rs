@@ -1,6 +1,6 @@
 use aion_state::prelude::Accessor;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum Access {
 
 }

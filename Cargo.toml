@@ -9,6 +9,7 @@ edition = "2024"
 aion-state = { workspace = true }
 rand = { workspace = true }
 rand_chacha = { workspace = true }
+serde = { workspace = true }
 # parking_lot = "0.12.5"
 # anyhow = "1.0.102"
 

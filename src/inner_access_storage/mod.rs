@@ -4,6 +4,11 @@ use aion_state::prelude::AccessStorage;
 
 use crate::prelude::Access;
 
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(bound(
+    serialize = "ValueId: serde::Serialize + std::cmp::Eq + std::hash::Hash",
+    deserialize = "ValueId: serde::Deserialize<'de> + std::cmp::Eq + std::hash::Hash"
+))]
 pub struct InnerAccessStorage<ValueId> {
     inner: HashMap<ValueId, Access>
 }
