@@ -1,7 +1,7 @@
 use std::{collections::HashMap, hash::Hash};
 
 use aion_state::prelude::BlacklistStorage;
-use rand::prelude::Rng;
+use rand::prelude::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 
 use crate::prelude::{Access, Password};
@@ -9,6 +9,15 @@ use crate::prelude::{Access, Password};
 pub struct InnerBlacklistStorage<Id> {
     inner: HashMap<Id, Vec<(Access, Password)>>,
     rng: ChaCha8Rng
+}
+
+impl<Id> Default for InnerBlacklistStorage<Id> {
+    fn default() -> Self {
+        Self {
+            inner: HashMap::new(),
+            rng: ChaCha8Rng::from_rng(&mut rand::rng())
+        }
+    }
 }
 
 impl<Id: Hash + Eq> InnerBlacklistStorage<Id> {
