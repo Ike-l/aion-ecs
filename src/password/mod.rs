@@ -1,4 +1,4 @@
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Password {
     
 }
