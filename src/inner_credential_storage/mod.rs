@@ -4,6 +4,7 @@ use aion_state::prelude::CredentialStorage;
 
 use crate::prelude::{Password, ReserverId};
 
+#[derive(Default, serde::Serialize, serde::Deserialize)]
 pub struct InnerCredentialStorage {
     inner: HashMap<ReserverId, Password>
 }
