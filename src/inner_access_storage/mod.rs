@@ -10,7 +10,6 @@ pub struct InnerAccessStorage<ValueId> {
 
 impl<ValueId: Eq + Hash> AccessStorage for InnerAccessStorage<ValueId> {
     type ValueId = ValueId;
-
     type Access = Access;
 
     fn get_mut(

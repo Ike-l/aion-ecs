@@ -1,5 +1,6 @@
 use aion_state::prelude::Accessor;
 
+#[derive(PartialEq)]
 pub enum Access {
 
 }
