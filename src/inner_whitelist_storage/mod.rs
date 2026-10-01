@@ -13,6 +13,14 @@ pub struct InnerWhitelistStorage<Id> {
     inner: HashMap<Id, Vec<Access>>
 }
 
+impl<Id> Default for InnerWhitelistStorage<Id> {
+    fn default() -> Self {
+        Self {
+            inner: HashMap::new()
+        }
+    }
+}
+
 impl<Id> WhitelistStorage for InnerWhitelistStorage<Id> 
     where Id: PartialEq + Eq + Hash
 {
