@@ -1,4 +1,5 @@
 use aion_program::prelude::AutoRegistry;
+use aion_state::prelude::Registry;
 
 use crate::prelude::{EntityAccess, EntityId, StoredType};
 

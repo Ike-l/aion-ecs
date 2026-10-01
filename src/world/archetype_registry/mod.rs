@@ -7,7 +7,6 @@ use crate::prelude::{ArchetypeAccess, ArchetypeId, StoredArchetype};
 
 pub mod archetype_id;
 pub mod stored_archetype;
-pub mod archetype_access;
 
 #[derive(Default)]
 pub struct ArchetypeRegistry {
