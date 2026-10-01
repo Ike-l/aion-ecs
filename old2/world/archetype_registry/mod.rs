@@ -1,9 +1,8 @@
 use std::sync::Arc;
 
-use aion_program::prelude::AutoRegistry;
-use aion_state::prelude::{RegistryReleasingAcquireAccess, Releaser};
+use aion_state::prelude::{Releaser};
 
-use crate::prelude::{ArchetypeAccess, ArchetypeId, StoredArchetype};
+use crate::prelude::{ArchetypeId, StoredArchetype};
 
 pub mod archetype_id;
 pub mod stored_archetype;
