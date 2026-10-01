@@ -8,6 +8,14 @@ pub struct InnerControlStorage<ResourceId> {
     inner: HashMap<ResourceId, ReserverId>
 }
 
+impl<ResourceId> Default for InnerControlStorage<ResourceId> {
+    fn default() -> Self {
+        Self {
+            inner: HashMap::new()
+        }
+    }
+}
+
 impl<ResourceId> ControlStorage for InnerControlStorage<ResourceId> 
     where ResourceId: PartialEq + Eq + Hash
 {
