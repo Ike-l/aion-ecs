@@ -4,6 +4,11 @@ use aion_state::prelude::ControlStorage;
 
 use crate::prelude::ReserverId;
 
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(bound(
+    serialize = "ResourceId: serde::Serialize + std::cmp::Eq + std::hash::Hash",
+    deserialize = "ResourceId: serde::Deserialize<'de> + std::cmp::Eq + std::hash::Hash"
+))]
 pub struct InnerControlStorage<ResourceId> {
     inner: HashMap<ResourceId, ReserverId>
 }
