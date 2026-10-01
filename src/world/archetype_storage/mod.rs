@@ -25,7 +25,7 @@ impl RegistryStorage for ArchetypeStorage {
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<&mut Self::Value> {
-        todo!()
+        self.inner.get_mut(value_id)
     }
 
     fn insert(

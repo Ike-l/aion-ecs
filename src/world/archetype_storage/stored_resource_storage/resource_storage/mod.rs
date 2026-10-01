@@ -2,24 +2,24 @@ use std::collections::HashMap;
 
 use aion_state::prelude::RegistryStorage;
 
-use crate::prelude::{EntityId, Resource, StoredResource};
+use crate::prelude::{EntityId, StoredResource};
 
 pub mod entity_id;
 pub mod stored_resource;
 
 pub struct ResourceStorage {
-    inner: HashMap<EntityId, StoredResource>
+    inner: HashMap<EntityId, StoredResource>,
 }
 
 impl RegistryStorage for ResourceStorage {
     type ValueId = EntityId;
-    type Value = Resource;
+    type Value = StoredResource;
 
     fn get_mut(
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<&mut Self::Value> {
-        todo!()
+        self.inner.get_mut(value_id)
     }
 
     fn insert(
