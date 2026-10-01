@@ -1,21 +1,22 @@
-use aion_state::prelude::ReservationStorage;
+use std::collections::HashMap;
+
+use aion_state::prelude::{Accesses, ReservationStorage};
 
 use crate::prelude::{InnerAccessStorage, ReserverId};
 
 pub struct InnerReservationStorage<ValueId> {
-    _p: ValueId
+    inner: HashMap<ReserverId, Accesses<InnerAccessStorage<ValueId>>>
 }
 
 impl<ValueId> ReservationStorage for InnerReservationStorage<ValueId> {
     type ReserverId = ReserverId;
-
     type AccessStorage = InnerAccessStorage<ValueId>;
 
     fn get_mut(
         &mut self, 
         key: &Self::ReserverId
     ) -> Option<&mut aion_state::prelude::Accesses<Self::AccessStorage>> {
-        todo!()
+        self.inner.get_mut(key)
     }
 
     fn insert(
@@ -23,7 +24,7 @@ impl<ValueId> ReservationStorage for InnerReservationStorage<ValueId> {
         key: Self::ReserverId,
         accesses: aion_state::prelude::Accesses<Self::AccessStorage>
     ) -> Option<aion_state::prelude::Accesses<Self::AccessStorage>> {
-        todo!()
+        self.inner.insert(key, accesses)
     }
 
     fn iter<'a>(&'a self) -> impl Iterator<Item = (
@@ -31,6 +32,6 @@ impl<ValueId> ReservationStorage for InnerReservationStorage<ValueId> {
         &'a aion_state::prelude::Accesses<Self::AccessStorage>
     )> 
         where Self: 'a {
-        todo!()
+        self.inner.iter()
     }
 }
