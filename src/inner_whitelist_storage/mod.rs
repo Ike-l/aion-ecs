@@ -4,6 +4,11 @@ use aion_state::prelude::WhitelistStorage;
 
 use crate::prelude::Access;
 
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(bound(
+    serialize = "Id: serde::Serialize + std::cmp::Eq + std::hash::Hash",
+    deserialize = "Id: serde::Deserialize<'de> + std::cmp::Eq + std::hash::Hash"
+))]
 pub struct InnerWhitelistStorage<Id> {
     inner: HashMap<Id, Vec<Access>>
 }
