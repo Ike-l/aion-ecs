@@ -12,19 +12,21 @@ impl StoredValueTrait for StoredResourceStorage {
     type Value = ResourceStorage;
 
     fn new(value: Self::Value) -> Self {
-        todo!()
+        Self {
+            resource_storage: value
+        }
     }
 
     fn as_shared(&self) -> &Self::Value {
-        todo!()
+        &self.resource_storage
     }
 
     fn as_unique(&mut self) -> &mut Self::Value {
-        todo!()
+        &mut self.resource_storage
     }
 
     fn into_inner(self) -> Self::Value {
-        todo!()
+        self.resource_storage
     }
 }
 
