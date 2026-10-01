@@ -12,7 +12,6 @@ impl<ResourceId> ControlStorage for InnerControlStorage<ResourceId>
     where ResourceId: PartialEq + Eq + Hash
 {
     type Id = ReserverId;
-
     type ResourceId = ResourceId;
 
     fn check_owner(
