@@ -27,10 +27,17 @@ pub mod prelude {
                     StoredResourceStorage,
                     resource_storage::{
                         ResourceStorage,
-                        stored_resource::{
-                            StoredResource,
-                            resource::{
-                                Resource
+                        stored_entity_storage::{
+                            StoredEntityStorage,
+                            entity_storage::{
+                                EntityStorage,
+                                GLOBAL_CAPACITY,
+                                stored_resource::{
+                                    StoredResource,
+                                    resource::{
+                                        Resource
+                                    }
+                                },
                             }
                         },
                         entity_id::{

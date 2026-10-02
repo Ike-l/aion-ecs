@@ -1,44 +1,22 @@
-use aion_state::prelude::{RegistryStorage, StoredValueTrait};
+use aion_state::prelude::RegistryStorage;
 
-use crate::prelude::{ResourceId, ResourceStorage, StoredResource};
+use crate::prelude::{EntityId, EntityStorage, StoredResource};
 
-pub mod resource_storage;
+pub mod entity_storage;
 
-pub struct StoredResourceStorage {
-    resource_storage: ResourceStorage
+pub struct StoredEntityStorage {
+    entity_storage: EntityStorage
 }
 
-impl StoredValueTrait for StoredResourceStorage {
-    type Value = ResourceStorage;
-
-    fn new(value: Self::Value) -> Self {
-        Self {
-            resource_storage: value
-        }
-    }
-
-    fn as_shared(&self) -> &Self::Value {
-        &self.resource_storage
-    }
-
-    fn as_unique(&mut self) -> &mut Self::Value {
-        &mut self.resource_storage
-    }
-
-    fn into_inner(self) -> Self::Value {
-        self.resource_storage
-    }
-}
-
-impl RegistryStorage for StoredResourceStorage {
-    type ValueId = ResourceId;
+impl RegistryStorage for StoredEntityStorage {
+    type ValueId = EntityId;
     type Value = StoredResource;
 
     fn get_mut(
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<&mut Self::Value> {
-        self.resource_storage.get_mut(value_id)
+        todo!()
     }
 
     fn insert(

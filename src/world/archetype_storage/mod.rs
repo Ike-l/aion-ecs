@@ -1,4 +1,4 @@
-use aion_state::prelude::{Registry, RegistryStorage};
+use aion_state::prelude::{Registry, RegistryAcquireAccess, RegistryStorage};
 
 use crate::prelude::{ArchetypeId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, ResourceStorage, StoredResourceStorage};
 
@@ -18,13 +18,19 @@ pub struct ArchetypeStorage {
 }
 
 impl RegistryStorage for ArchetypeStorage {
-    type ValueId = ArchetypeId;
-    type Value = ResourceStorage;
+    type ValueId = ResourceId;
+    type Value = StoredResourceStorage;
 
     fn get_mut(
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<&mut Self::Value> {
+        // let r: Result<_, aion_state::prelude::RegistryAcquireAccessError> = self.inner.acquire_access(RegistryAcquireAccess {
+        //     user_details: todo!(),
+        //     resource_id: todo!(),
+        //     access: todo!(),
+        //     password: todo!(),
+        // });
         todo!()
     }
 
