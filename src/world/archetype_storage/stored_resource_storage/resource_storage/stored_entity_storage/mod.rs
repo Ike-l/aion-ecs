@@ -16,7 +16,7 @@ impl RegistryStorage for StoredEntityStorage {
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<&mut Self::Value> {
-        todo!()
+        self.entity_storage.get_mut(value_id)
     }
 
     fn insert(
@@ -24,36 +24,36 @@ impl RegistryStorage for StoredEntityStorage {
         value_id: Self::ValueId, 
         value: Self::Value
     ) -> Option<Self::Value> {
-        todo!()
+        self.entity_storage.insert(value_id, value)
     }
 
     fn remove(
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<Self::Value> {
-        todo!()
+        self.entity_storage.remove(value_id)
     }
 
     fn contains_key(
         &self, 
         value_id: &Self::ValueId
     ) -> bool {
-        todo!()
+        self.entity_storage.contains_key(value_id)
     }
 
     fn len(&self) -> usize {
-        todo!()
+        self.entity_storage.len()
     }
 
     fn keys(&self) -> impl Iterator<Item = &Self::ValueId> {
-        vec![].into_iter()
+        self.entity_storage.keys()
     }
 
     unsafe fn next_insert_may_reallocates(&self) -> bool {
-        todo!()
+        unsafe { self.entity_storage.next_insert_may_reallocates() }
     }
 
     unsafe fn next_removal_may_reallocates(&self) -> bool {
-        todo!()
+        unsafe { self.entity_storage.next_removal_may_reallocates() }
     }
 }
