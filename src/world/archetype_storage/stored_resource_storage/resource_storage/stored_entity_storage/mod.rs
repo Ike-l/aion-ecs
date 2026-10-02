@@ -46,7 +46,7 @@ impl RegistryStorage for StoredEntityStorage {
     }
 
     fn keys(&self) -> impl Iterator<Item = &Self::ValueId> {
-        todo!()
+        vec![].into_iter()
     }
 
     unsafe fn next_insert_may_reallocates(&self) -> bool {

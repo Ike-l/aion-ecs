@@ -38,7 +38,7 @@ impl RegistryStorage for StoredResourceStorage {
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<&mut Self::Value> {
-        self.resource_storage.get_mut(value_id)
+        todo!()
     }
 
     fn insert(
@@ -68,7 +68,7 @@ impl RegistryStorage for StoredResourceStorage {
     }
 
     fn keys(&self) -> impl Iterator<Item = &Self::ValueId> {
-        todo!()
+        vec![].into_iter()
     }
 
     unsafe fn next_insert_may_reallocates(&self) -> bool {
