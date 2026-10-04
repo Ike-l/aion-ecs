@@ -10,6 +10,7 @@ pub mod inner_control_storage;
 pub mod reserver_id;
 pub mod access;
 pub mod password;
+pub mod access;
 
 pub mod prelude {
     pub use super::{
