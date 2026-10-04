@@ -28,6 +28,7 @@ pub mod prelude {
                     StoredResourceStorage,
                     resource_storage::{
                         ResourceStorage,
+                        ResourceStorageInner,
                         stored_entity_storage::{
                             StoredEntityStorage,
                             entity_storage::{

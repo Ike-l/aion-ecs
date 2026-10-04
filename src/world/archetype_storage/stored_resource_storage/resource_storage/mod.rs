@@ -6,8 +6,7 @@ use crate::prelude::{EntityId, InnerAccessStorage, InnerBlacklistStorage, InnerC
 pub mod entity_id;
 pub mod stored_entity_storage;
 
-pub struct ResourceStorage {
-    inner: Registry<
+pub type ResourceStorageInner = Registry<
         StoredEntityStorage,
         InnerReservationStorage<EntityId>,
         InnerAccessStorage<EntityId>,
@@ -15,5 +14,9 @@ pub struct ResourceStorage {
         InnerWhitelistStorage<EntityId>,
         InnerBlacklistStorage<EntityId>,
         InnerControlStorage<EntityId>
-    >
+>;
+
+pub struct ResourceStorage {
+    inner: Arc<ResourceStorageInner>
 }
+
