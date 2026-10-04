@@ -6,7 +6,7 @@ use crate::prelude::{EntityId, StoredResource};
 
 pub mod stored_resource;
 
-pub static GLOBAL_CAPACITY: OnceLock<usize> = OnceLock::new();
+pub static GLOBAL_ENTITY_STORAGE_CAPACITY: OnceLock<usize> = OnceLock::new();
 
 pub struct EntityStorage {
     inner: HashMap<EntityId, StoredResource>,
@@ -16,7 +16,7 @@ pub struct EntityStorage {
 
 impl Default for EntityStorage {
     fn default() -> Self {
-        let capacity = *GLOBAL_CAPACITY.get_or_init(|| 1000);
+        let capacity = *GLOBAL_ENTITY_STORAGE_CAPACITY.get_or_init(|| 1000);
         Self::new(capacity)
     }
 }

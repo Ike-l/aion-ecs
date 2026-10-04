@@ -1,4 +1,4 @@
-use aion_state::prelude::{RegistryStorage, WrappedValue};
+use aion_state::prelude::RegistryStorage;
 
 use crate::prelude::{EntityId, EntityStorage, StoredResource};
 
@@ -6,14 +6,6 @@ pub mod entity_storage;
 
 pub struct StoredEntityStorage {
     entity_storage: EntityStorage
-}
-
-impl<'a> WrappedValue for &'a mut StoredResource {
-    type Value = StoredResource;
-
-    fn as_unique(&mut self) -> &mut Self::Value {
-        self
-    }
 }
 
 impl RegistryStorage for StoredEntityStorage {

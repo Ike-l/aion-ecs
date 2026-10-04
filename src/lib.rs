@@ -36,7 +36,7 @@ pub mod prelude {
                             StoredEntityStorage,
                             entity_storage::{
                                 EntityStorage,
-                                GLOBAL_CAPACITY,
+                                GLOBAL_ENTITY_STORAGE_CAPACITY,
                                 stored_resource::{
                                     StoredResource,
                                     resource::{
