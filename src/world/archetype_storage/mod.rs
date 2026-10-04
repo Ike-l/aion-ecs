@@ -1,6 +1,6 @@
-use aion_state::prelude::{Registry, RegistryAcquireAccess, RegistryStorage};
+use aion_state::prelude::{Registry, RegistryStorage};
 
-use crate::prelude::{ArchetypeId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, ResourceStorage, StoredResourceStorage};
+use crate::prelude::{InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, StoredResourceStorage};
 
 pub mod stored_resource_storage;
 pub mod resource_id;
@@ -19,27 +19,29 @@ pub struct ArchetypeStorage {
 
 impl RegistryStorage for ArchetypeStorage {
     type ValueId = ResourceId;
-    type Value = StoredResourceStorage;
+    type OwnedValue = StoredResourceStorage;
+    type ReferencedValue<'a> = &'a mut Self::OwnedValue where Self: 'a;
 
-    fn get_mut(
-        &mut self, 
+    fn get_mut_wrapped(
+        &mut self,
         value_id: &Self::ValueId
-    ) -> Option<&mut Self::Value> {
+    ) -> Option<Self::ReferencedValue<'_>>
+    {
         todo!()
     }
 
     fn insert(
         &mut self, 
         value_id: Self::ValueId, 
-        value: Self::Value
-    ) -> Option<Self::Value> {
+        value: Self::OwnedValue
+    ) -> Option<Self::OwnedValue> {
         todo!()
     }
 
     fn remove(
         &mut self, 
         value_id: &Self::ValueId
-    ) -> Option<Self::Value> {
+    ) -> Option<Self::OwnedValue> {
         todo!()
     }
 
