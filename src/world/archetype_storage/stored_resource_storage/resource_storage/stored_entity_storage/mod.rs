@@ -1,4 +1,4 @@
-use aion_state::prelude::RegistryStorage;
+use aion_state::prelude::{RegistryStorage, WrappedValue};
 
 use crate::prelude::{EntityId, EntityStorage, StoredResource};
 
@@ -8,29 +8,38 @@ pub struct StoredEntityStorage {
     entity_storage: EntityStorage
 }
 
-impl RegistryStorage for StoredEntityStorage {
-    type ValueId = EntityId;
+impl<'a> WrappedValue for &'a mut StoredResource {
     type Value = StoredResource;
 
-    fn get_mut(
+    fn as_unique(&mut self) -> &mut Self::Value {
+        self
+    }
+}
+
+impl RegistryStorage for StoredEntityStorage {
+    type ValueId = EntityId;
+    type OwnedValue = StoredResource;
+    type ReferencedValue<'a> = &'a mut Self::OwnedValue where Self: 'a;
+
+    fn get_mut_wrapped(
         &mut self, 
         value_id: &Self::ValueId
-    ) -> Option<&mut Self::Value> {
-        self.entity_storage.get_mut(value_id)
+    ) -> Option<Self::ReferencedValue<'_>> {
+        self.entity_storage.get_mut_wrapped(value_id)
     }
 
     fn insert(
         &mut self, 
         value_id: Self::ValueId, 
-        value: Self::Value
-    ) -> Option<Self::Value> {
+        value: Self::OwnedValue
+    ) -> Option<Self::OwnedValue> {
         self.entity_storage.insert(value_id, value)
     }
 
     fn remove(
         &mut self, 
         value_id: &Self::ValueId
-    ) -> Option<Self::Value> {
+    ) -> Option<Self::OwnedValue> {
         self.entity_storage.remove(value_id)
     }
 
