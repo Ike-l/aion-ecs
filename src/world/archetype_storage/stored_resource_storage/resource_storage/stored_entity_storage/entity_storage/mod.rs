@@ -33,20 +33,22 @@ impl EntityStorage {
 
 impl RegistryStorage for EntityStorage {
     type ValueId = EntityId;
-    type Value = StoredResource;
-
-    fn get_mut(
-        &mut self, 
+    type OwnedValue = StoredResource;
+    type ReferencedValue<'a> = &'a mut Self::OwnedValue where Self: 'a;
+    
+    fn get_mut_wrapped(
+        &mut self,
         value_id: &Self::ValueId
-    ) -> Option<&mut Self::Value> {
+    ) -> Option<Self::ReferencedValue<'_>>
+    {
         self.inner.get_mut(value_id)
     }
 
     fn insert(
         &mut self, 
         value_id: Self::ValueId, 
-        value: Self::Value
-    ) -> Option<Self::Value> {
+        value: Self::OwnedValue
+    ) -> Option<Self::OwnedValue> {
         let r = self.inner.insert(value_id, value);
 
         if r.is_none() {
@@ -59,7 +61,7 @@ impl RegistryStorage for EntityStorage {
     fn remove(
         &mut self, 
         value_id: &Self::ValueId
-    ) -> Option<Self::Value> {
+    ) -> Option<Self::OwnedValue> {
         let r = self.inner.remove(value_id);
 
         if r.is_some() {
