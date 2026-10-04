@@ -1,6 +1,6 @@
-use aion_state::prelude::{RegistryStorage, StoredValueTrait};
+use aion_state::prelude::{RegistryStorage};
 
-use crate::prelude::{ResourceId, ResourceStorage, StoredResource};
+use crate::prelude::{AccessResult, Resource, ResourceId, ResourceStorage, StoredResourceStorageOutput};
 
 pub mod resource_storage;
 pub mod stored_resource_storage_output;
@@ -9,51 +9,31 @@ pub struct StoredResourceStorage {
     resource_storage: ResourceStorage
 }
 
-impl StoredValueTrait for StoredResourceStorage {
-    type Value = ResourceStorage;
-
-    fn new(value: Self::Value) -> Self {
-        Self {
-            resource_storage: value
-        }
-    }
-
-    fn as_shared(&self) -> &Self::Value {
-        &self.resource_storage
-    }
-
-    fn as_unique(&mut self) -> &mut Self::Value {
-        &mut self.resource_storage
-    }
-
-    fn into_inner(self) -> Self::Value {
-        self.resource_storage
-    }
-}
-
 impl RegistryStorage for StoredResourceStorage {
     type ValueId = ResourceId;
-    type Value = StoredResource;
+    
+    type OwnedValue = Resource;
+    type ReferencedValue<'a> = StoredResourceStorageOutput<'a> where Self: 'a;
 
-    fn get_mut(
-        &mut self, 
+    fn get_mut_wrapped(
+        &mut self,
         value_id: &Self::ValueId
-    ) -> Option<&mut Self::Value> {
-        todo!()
+    ) -> Option<Self::ReferencedValue<'_>> {
+        self.resource_storage.get().ok().map(Self::ReferencedValue::new)
     }
 
     fn insert(
         &mut self, 
         value_id: Self::ValueId, 
-        value: Self::Value
-    ) -> Option<Self::Value> {
-        todo!()
+        value: Self::OwnedValue
+    ) -> Option<Self::OwnedValue> {
+        self.resource_storage.insert()
     }
 
     fn remove(
         &mut self, 
         value_id: &Self::ValueId
-    ) -> Option<Self::Value> {
+    ) -> Option<Self::OwnedValue> {
         todo!()
     }
 
@@ -77,6 +57,17 @@ impl RegistryStorage for StoredResourceStorage {
     }
 
     unsafe fn next_removal_may_reallocates(&self) -> bool {
-        todo!()
+        let result = self.resource_storage.get();
+        match result {
+            Ok(result) => {
+                let result = result.as_ref().unwrap();
+                match result {
+                    AccessResult::Shared(_) => todo!(),
+                    _ => unreachable!()
+                }
+                todo!()
+            },
+            Err(err) => todo!(),
+        }
     }
 }
