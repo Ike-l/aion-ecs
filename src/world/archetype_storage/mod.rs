@@ -1,70 +1,102 @@
-use aion_state::prelude::{Registry, RegistryStorage};
+use std::{collections::HashMap, sync::OnceLock};
 
-use crate::prelude::{InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, StoredResourceStorage};
+use aion_state::prelude::Registry;
+
+use crate::prelude::{ArchetypeId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, StoredResourceStorage};
 
 pub mod stored_resource_storage;
 pub mod resource_id;
 
+pub type ArchetypeStorageRegistry = Registry<
+    StoredResourceStorage,
+    InnerReservationStorage<ResourceId>,
+    InnerAccessStorage<ResourceId>,
+    InnerCredentialStorage,
+    InnerWhitelistStorage<ResourceId>,
+    InnerBlacklistStorage<ResourceId>,
+    InnerControlStorage<ResourceId>
+>;
+
+pub static GLOBAL_ARCHETYPE_STORAGE_CAPACITY: OnceLock<usize> = OnceLock::new();
+
 pub struct ArchetypeStorage {
-    inner: Registry<
-        StoredResourceStorage,
-        InnerReservationStorage<ResourceId>,
-        InnerAccessStorage<ResourceId>,
-        InnerCredentialStorage,
-        InnerWhitelistStorage<ResourceId>,
-        InnerBlacklistStorage<ResourceId>,
-        InnerControlStorage<ResourceId>
-    >
+    inner: HashMap<ArchetypeId, ArchetypeStorageRegistry>,
+    calculated_len: usize,
+    capacity: usize
 }
 
-impl RegistryStorage for ArchetypeStorage {
-    type ValueId = ResourceId;
-    type OwnedValue = StoredResourceStorage;
-    type ReferencedValue<'a> = &'a mut Self::OwnedValue where Self: 'a;
+impl Default for ArchetypeStorage {
+    fn default() -> Self {
+        let capacity = *GLOBAL_ARCHETYPE_STORAGE_CAPACITY.get_or_init(|| 1000);
+        Self::new(capacity)
+    }
+}
 
-    fn get_mut_wrapped(
+impl ArchetypeStorage {
+    pub fn new(capacity: usize) -> Self {
+        Self {
+            inner: HashMap::with_capacity(capacity),
+            calculated_len: 0,
+            capacity
+        }
+    }
+}
+
+impl ArchetypeStorage {
+    pub fn get(
         &mut self,
-        value_id: &Self::ValueId
-    ) -> Option<Self::ReferencedValue<'_>>
-    {
-        todo!()
+        archetype_id: &ArchetypeId
+    ) -> Option<&ArchetypeStorageRegistry> {
+        self.inner.get(archetype_id)
     }
 
-    fn insert(
+    pub fn insert(
         &mut self, 
-        value_id: Self::ValueId, 
-        value: Self::OwnedValue
-    ) -> Option<Self::OwnedValue> {
-        todo!()
+        archetype_id: ArchetypeId, 
+        archetype_storage_registry: ArchetypeStorageRegistry
+    ) -> Option<ArchetypeStorageRegistry> {
+        let r = self.inner.insert(archetype_id, archetype_storage_registry);
+
+        if r.is_none() {
+            self.calculated_len += 1;
+        }
+
+        r
     }
 
-    fn remove(
+    pub fn remove(
         &mut self, 
-        value_id: &Self::ValueId
-    ) -> Option<Self::OwnedValue> {
-        todo!()
+        archetype_id: &ArchetypeId
+    ) -> Option<ArchetypeStorageRegistry> {
+        let r = self.inner.remove(archetype_id);
+
+        if r.is_some() {
+            self.calculated_len -= 1;
+        }
+
+        r
     }
 
-    fn contains_key(
+    pub fn contains_key(
         &self, 
-        value_id: &Self::ValueId
+        archetype_id: &ArchetypeId
     ) -> bool {
-        todo!()
+        self.inner.contains_key(archetype_id)
     }
 
-    fn len(&self) -> usize {
-        todo!()
+    pub fn len(&self) -> usize {
+        self.inner.len()
     }
 
-    fn keys(&self) -> impl Iterator<Item = &Self::ValueId> {
-        vec![].into_iter()
+    pub fn keys(&self) -> impl Iterator<Item = &ArchetypeId> {
+        self.inner.keys()
     }
 
-    unsafe fn next_insert_may_reallocates(&self) -> bool {
-        todo!()
+    pub unsafe fn next_insert_may_reallocates(&self) -> bool {
+        self.calculated_len >= self.capacity
     }
 
-    unsafe fn next_removal_may_reallocates(&self) -> bool {
-        todo!()
+    pub unsafe fn next_removal_may_reallocates(&self) -> bool {
+        false
     }
 }

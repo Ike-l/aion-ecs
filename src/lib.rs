@@ -15,23 +15,22 @@ pub mod access_result;
 pub mod prelude {
     pub use super::{
         world::{
-            World,
+            StoredArchetypeStorage,
             archetype_id::{
                 ArchetypeId
             },
             archetype_storage::{
                 ArchetypeStorage,
+                GLOBAL_ARCHETYPE_STORAGE_CAPACITY,
                 resource_id::{
                     ResourceId
                 },
                 stored_resource_storage::{
                     StoredResourceStorage,
-                    stored_resource_storage_output::{
-                        StoredResourceStorageOutput
-                    },
                     resource_storage::{
                         ResourceStorage,
-                        ResourceStorageInner,
+                        GLOBAL_RESOURCE_STORAGE_CAPACITY,
+                        ResourceStorageRegistry,
                         stored_entity_storage::{
                             StoredEntityStorage,
                             entity_storage::{

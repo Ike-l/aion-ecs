@@ -1,7 +1,5 @@
 use std::{collections::HashMap, sync::OnceLock};
 
-use aion_state::prelude::RegistryStorage;
-
 use crate::prelude::{EntityId, StoredResource};
 
 pub mod stored_resource;
@@ -31,25 +29,20 @@ impl EntityStorage {
     }
 }
 
-impl RegistryStorage for EntityStorage {
-    type ValueId = EntityId;
-    type OwnedValue = StoredResource;
-    type ReferencedValue<'a> = &'a mut Self::OwnedValue where Self: 'a;
-    
-    fn get_mut_wrapped(
+impl EntityStorage {
+    pub fn get(
         &mut self,
-        value_id: &Self::ValueId
-    ) -> Option<Self::ReferencedValue<'_>>
-    {
-        self.inner.get_mut(value_id)
+        entity_id: &EntityId
+    ) -> Option<&mut StoredResource> {
+        self.inner.get_mut(entity_id)
     }
 
-    fn insert(
+    pub fn insert(
         &mut self, 
-        value_id: Self::ValueId, 
-        value: Self::OwnedValue
-    ) -> Option<Self::OwnedValue> {
-        let r = self.inner.insert(value_id, value);
+        entity_id: EntityId, 
+        stored_resource: StoredResource
+    ) -> Option<StoredResource> {
+        let r = self.inner.insert(entity_id, stored_resource);
 
         if r.is_none() {
             self.calculated_len += 1;
@@ -58,11 +51,11 @@ impl RegistryStorage for EntityStorage {
         r
     }
 
-    fn remove(
+    pub fn remove(
         &mut self, 
-        value_id: &Self::ValueId
-    ) -> Option<Self::OwnedValue> {
-        let r = self.inner.remove(value_id);
+        entity_id: &EntityId
+    ) -> Option<StoredResource> {
+        let r = self.inner.remove(entity_id);
 
         if r.is_some() {
             self.calculated_len -= 1;
@@ -71,26 +64,26 @@ impl RegistryStorage for EntityStorage {
         r
     }
 
-    fn contains_key(
+    pub fn contains_key(
         &self, 
-        value_id: &Self::ValueId
+        entity_id: &EntityId
     ) -> bool {
-        self.inner.contains_key(value_id)
+        self.inner.contains_key(entity_id)
     }
 
-    fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.inner.len()
     }
 
-    fn keys(&self) -> impl Iterator<Item = &Self::ValueId> {
+    pub fn keys(&self) -> impl Iterator<Item = &EntityId> {
         self.inner.keys()
     }
 
-    unsafe fn next_insert_may_reallocates(&self) -> bool {
+    pub unsafe fn next_insert_may_reallocates(&self) -> bool {
         self.calculated_len >= self.capacity
     }
 
-    unsafe fn next_removal_may_reallocates(&self) -> bool {
+    pub unsafe fn next_removal_may_reallocates(&self) -> bool {
         false
     }
 }

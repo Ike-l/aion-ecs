@@ -1,9 +1,10 @@
-use aion_state::prelude::{RegistryStorage};
+use std::sync::Arc;
 
-use crate::prelude::{AccessResult, Resource, ResourceId, ResourceStorage, StoredResourceStorageOutput};
+use aion_state::prelude::RegistryStorage;
+
+use crate::prelude::{ResourceId, ResourceStorage, ResourceStorageRegistry};
 
 pub mod resource_storage;
-pub mod stored_resource_storage_output;
 
 pub struct StoredResourceStorage {
     resource_storage: ResourceStorage
@@ -12,14 +13,14 @@ pub struct StoredResourceStorage {
 impl RegistryStorage for StoredResourceStorage {
     type ValueId = ResourceId;
     
-    type OwnedValue = Resource;
-    type ReferencedValue<'a> = StoredResourceStorageOutput<'a> where Self: 'a;
+    type OwnedValue = Arc<ResourceStorageRegistry>;
+    type ReferencedValue<'a> = &'a Self::OwnedValue where Self: 'a;
 
-    fn get_mut_wrapped(
+    fn get(
         &mut self,
         value_id: &Self::ValueId
     ) -> Option<Self::ReferencedValue<'_>> {
-        self.resource_storage.get().ok().map(Self::ReferencedValue::new)
+        self.resource_storage.get(value_id)
     }
 
     fn insert(
@@ -27,47 +28,36 @@ impl RegistryStorage for StoredResourceStorage {
         value_id: Self::ValueId, 
         value: Self::OwnedValue
     ) -> Option<Self::OwnedValue> {
-        self.resource_storage.insert()
+        self.resource_storage.insert(value_id, value)
     }
 
     fn remove(
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<Self::OwnedValue> {
-        todo!()
+        self.resource_storage.remove(value_id)
     }
 
     fn contains_key(
         &self, 
         value_id: &Self::ValueId
     ) -> bool {
-        todo!()
+        self.resource_storage.contains_key(value_id)
     }
 
     fn len(&self) -> usize {
-        todo!()
+        self.resource_storage.len()
     }
 
     fn keys(&self) -> impl Iterator<Item = &Self::ValueId> {
-        vec![].into_iter()
+        self.resource_storage.keys()
     }
 
     unsafe fn next_insert_may_reallocates(&self) -> bool {
-        todo!()
+        unsafe { self.resource_storage.next_insert_may_reallocates() }
     }
 
     unsafe fn next_removal_may_reallocates(&self) -> bool {
-        let result = self.resource_storage.get();
-        match result {
-            Ok(result) => {
-                let result = result.as_ref().unwrap();
-                match result {
-                    AccessResult::Shared(_) => todo!(),
-                    _ => unreachable!()
-                }
-                todo!()
-            },
-            Err(err) => todo!(),
-        }
+        unsafe { self.resource_storage.next_removal_may_reallocates() }
     }
 }
