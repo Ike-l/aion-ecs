@@ -8,7 +8,6 @@ pub mod inner_whitelist_storage;
 pub mod inner_control_storage;
 
 pub mod reserver_id;
-pub mod access;
 pub mod password;
 pub mod access;
 
@@ -71,6 +70,13 @@ pub mod prelude {
         },
         access::{
             Access
+        },
+        access_result::{
+            AccessResult,
+            transmutable::{
+                TransmutableShared,
+                TransmutableOwned
+            }
         },
         password::{
             Password
