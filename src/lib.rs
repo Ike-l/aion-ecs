@@ -26,6 +26,9 @@ pub mod prelude {
                 },
                 stored_resource_storage::{
                     StoredResourceStorage,
+                    stored_resource_storage_output::{
+                        StoredResourceStorageOutput
+                    },
                     resource_storage::{
                         ResourceStorage,
                         ResourceStorageInner,

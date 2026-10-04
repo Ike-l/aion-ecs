@@ -3,6 +3,7 @@ use aion_state::prelude::{RegistryStorage, StoredValueTrait};
 use crate::prelude::{ResourceId, ResourceStorage, StoredResource};
 
 pub mod resource_storage;
+pub mod stored_resource_storage_output;
 
 pub struct StoredResourceStorage {
     resource_storage: ResourceStorage
