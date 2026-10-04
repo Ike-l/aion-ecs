@@ -1,6 +1,6 @@
-use aion_state::prelude::StoredValueTrait;
+use aion_state::prelude::StoreValue;
 
-use crate::prelude::Resource;
+use crate::prelude::{Resource, TransmutableOwned, TransmutableShared};
 
 pub mod resource;
 
@@ -8,24 +8,28 @@ pub struct StoredResource {
     resource: Resource
 }
 
-impl StoredValueTrait for StoredResource {
+impl StoreValue for StoredResource {
     type Value = Resource;
 
-    fn new(value: Self::Value) -> Self {
+    fn store(value: Self::Value) -> Self {
         Self {
             resource: value
         }
     }
 
-    fn as_shared(&self) -> &Self::Value {
-        &self.resource
-    }
-
-    fn as_unique(&mut self) -> &mut Self::Value {
-        &mut self.resource
-    }
-
-    fn into_inner(self) -> Self::Value {
+    fn take(self) -> Self::Value {
         self.resource
     }
+}
+
+impl<'a> TransmutableShared for &'a mut StoredResource {
+    type AsShared = &'a StoredResource;
+
+    fn transmute(self) -> Self::AsShared { self }
+}
+
+impl<'a> TransmutableOwned for &'a mut StoredResource {
+    type AsOwned = StoredResource;
+
+    fn transmute(self) -> Self::AsOwned { unimplemented!() }
 }
