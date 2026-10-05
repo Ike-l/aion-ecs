@@ -30,7 +30,7 @@ impl EntityStorage {
 }
 
 impl EntityStorage {
-    pub fn get(
+    pub fn get_mut(
         &mut self,
         entity_id: &EntityId
     ) -> Option<&mut StoredResource> {

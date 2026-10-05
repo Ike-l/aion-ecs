@@ -2,13 +2,13 @@ use std::{collections::HashMap, sync::{Arc, OnceLock}};
 
 use aion_state::prelude::Registry;
 
-use crate::prelude::{EntityId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, StoredEntityStorage};
+use crate::prelude::{EntityId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, StoredEntityStorage, TransmutableOwned, TransmutableShared};
 
 
 pub mod entity_id;
 pub mod stored_entity_storage;
 
-pub type ResourceStorageRegistry = Registry<
+pub type ResourceStorageRegistry = Arc<Registry<
     StoredEntityStorage,
     InnerReservationStorage<EntityId>,
     InnerAccessStorage<EntityId>,
@@ -16,12 +16,28 @@ pub type ResourceStorageRegistry = Registry<
     InnerWhitelistStorage<EntityId>,
     InnerBlacklistStorage<EntityId>,
     InnerControlStorage<EntityId>
->;
+>>;
+
+impl<'a> TransmutableShared for &'a mut ResourceStorageRegistry {
+    type AsShared = &'a ResourceStorageRegistry;
+
+    fn transmute(self) -> Self::AsShared {
+        self
+    }
+}
+
+impl<'a> TransmutableOwned for &'a mut ResourceStorageRegistry {
+    type AsOwned = ResourceStorageRegistry;
+
+    fn transmute(self) -> Self::AsOwned {
+        unimplemented!()
+    }
+}
 
 pub static GLOBAL_RESOURCE_STORAGE_CAPACITY: OnceLock<usize> = OnceLock::new();
 
 pub struct ResourceStorage {
-    inner: HashMap<ResourceId, Arc<ResourceStorageRegistry>>,
+    inner: HashMap<ResourceId, ResourceStorageRegistry>,
     calculated_len: usize,
     capacity: usize
 }
@@ -44,18 +60,18 @@ impl ResourceStorage {
 }
 
 impl ResourceStorage {
-    pub fn get(
-        &self,
+    pub fn get_mut(
+        &mut self,
         resource_id: &ResourceId,
-    ) -> Option<&Arc<ResourceStorageRegistry>> {
-        self.inner.get(resource_id)
+    ) -> Option<&mut ResourceStorageRegistry> {
+        self.inner.get_mut(resource_id)
     }
 
     pub fn insert(
         &mut self,
         resource_id: ResourceId,
-        resource_storage_registry: Arc<ResourceStorageRegistry>
-    ) -> Option<Arc<ResourceStorageRegistry>> {
+        resource_storage_registry: ResourceStorageRegistry
+    ) -> Option<ResourceStorageRegistry> {
         let r = self.inner.insert(resource_id, resource_storage_registry);
 
         if r.is_none() {
@@ -68,7 +84,7 @@ impl ResourceStorage {
     pub fn remove(
         &mut self,
         resource_id: &ResourceId
-    ) -> Option<Arc<ResourceStorageRegistry>> {
+    ) -> Option<ResourceStorageRegistry> {
         let r = self.inner.remove(resource_id);
 
         if r.is_some() {

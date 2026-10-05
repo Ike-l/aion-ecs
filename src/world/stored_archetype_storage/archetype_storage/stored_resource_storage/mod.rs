@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use aion_state::prelude::RegistryStorage;
 
 use crate::prelude::{ResourceId, ResourceStorage, ResourceStorageRegistry};
@@ -13,14 +11,14 @@ pub struct StoredResourceStorage {
 impl RegistryStorage for StoredResourceStorage {
     type ValueId = ResourceId;
     
-    type OwnedValue = Arc<ResourceStorageRegistry>;
-    type ReferencedValue<'a> = &'a Self::OwnedValue where Self: 'a;
+    type OwnedValue = ResourceStorageRegistry;
+    type ReferencedValue<'a> = &'a mut Self::OwnedValue where Self: 'a;
 
-    fn get(
+    fn get_mut(
         &mut self,
         value_id: &Self::ValueId
     ) -> Option<Self::ReferencedValue<'_>> {
-        self.resource_storage.get(value_id)
+        self.resource_storage.get_mut(value_id)
     }
 
     fn insert(

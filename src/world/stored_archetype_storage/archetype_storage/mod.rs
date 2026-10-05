@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::OnceLock};
 
 use aion_state::prelude::Registry;
 
-use crate::prelude::{ArchetypeId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, StoredResourceStorage};
+use crate::prelude::{ArchetypeId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, StoredResourceStorage, TransmutableOwned, TransmutableShared};
 
 pub mod stored_resource_storage;
 pub mod resource_id;
@@ -16,6 +16,22 @@ pub type ArchetypeStorageRegistry = Registry<
     InnerBlacklistStorage<ResourceId>,
     InnerControlStorage<ResourceId>
 >;
+
+impl<'a> TransmutableShared for &'a mut ArchetypeStorageRegistry {
+    type AsShared = &'a ArchetypeStorageRegistry;
+
+    fn transmute(self) -> Self::AsShared {
+        self
+    }
+}
+
+impl<'a> TransmutableOwned for &'a mut ArchetypeStorageRegistry {
+    type AsOwned = ArchetypeStorageRegistry;
+
+    fn transmute(self) -> Self::AsOwned {
+        unimplemented!()
+    }
+}
 
 pub static GLOBAL_ARCHETYPE_STORAGE_CAPACITY: OnceLock<usize> = OnceLock::new();
 
@@ -43,11 +59,11 @@ impl ArchetypeStorage {
 }
 
 impl ArchetypeStorage {
-    pub fn get(
+    pub fn get_mut(
         &mut self,
         archetype_id: &ArchetypeId
-    ) -> Option<&ArchetypeStorageRegistry> {
-        self.inner.get(archetype_id)
+    ) -> Option<&mut ArchetypeStorageRegistry> {
+        self.inner.get_mut(archetype_id)
     }
 
     pub fn insert(

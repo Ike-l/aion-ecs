@@ -13,11 +13,11 @@ impl RegistryStorage for StoredEntityStorage {
     type OwnedValue = StoredResource;
     type ReferencedValue<'a> = &'a mut Self::OwnedValue where Self: 'a;
 
-    fn get(
+    fn get_mut(
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<Self::ReferencedValue<'_>> {
-        self.entity_storage.get(value_id)
+        self.entity_storage.get_mut(value_id)
     }
 
     fn insert(
