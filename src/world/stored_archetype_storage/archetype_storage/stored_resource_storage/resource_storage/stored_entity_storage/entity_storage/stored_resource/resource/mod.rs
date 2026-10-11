@@ -43,6 +43,8 @@ impl Resource {
         unsafe { &mut *(self.ptr as *mut T) }
     }
 
+    /// Safety:
+    /// * Ensure `T` is compatible with `self`
     pub unsafe fn copy_inner<T: Copy + 'static>(self) -> T {
         if let Some(type_id) = self.id_metadata {
             assert_eq!(

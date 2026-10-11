@@ -48,6 +48,12 @@ pub mod prelude {
                                 entity_storage::{
                                     EntityStorage,
                                     ITEMS_PER_ENTITY_STORAGE_PAGE,
+                                    storage_iter::{
+                                        StorageIter
+                                    },
+                                    storage_iter_mut::{
+                                        StorageIterMut
+                                    },
                                     stored_resource::{
                                         StoredResource,
                                         resource::{
