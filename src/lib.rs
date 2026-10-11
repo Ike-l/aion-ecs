@@ -34,13 +34,24 @@ pub mod prelude {
                             ResourceStorageRegistry,
                             stored_entity_storage::{
                                 StoredEntityStorage,
+                                resource_views::{
+                                    unique_resource_view::{
+                                        UniqueResourceView
+                                    },
+                                    shared_resource_view::{
+                                        SharedResourceView
+                                    },
+                                    owned_resource_view::{
+                                        NotImplementedOwnedResource
+                                    }
+                                },
                                 entity_storage::{
                                     EntityStorage,
-                                    GLOBAL_ENTITY_STORAGE_CAPACITY,
+                                    ITEMS_PER_ENTITY_STORAGE_PAGE,
                                     stored_resource::{
                                         StoredResource,
                                         resource::{
-                                            Resource
+                                            Resource,
                                         }
                                     },
                                 }
