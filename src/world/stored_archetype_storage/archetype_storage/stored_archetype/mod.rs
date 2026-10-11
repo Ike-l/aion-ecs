@@ -4,11 +4,11 @@ use crate::prelude::{ResourceId, Archetype, EntityStorageRegistry};
 
 pub mod archetype;
 
-pub struct StoredResourceStorage {
+pub struct StoredArchetype {
     resource_storage: Archetype
 }
 
-impl RegistryStorage for StoredResourceStorage {
+impl RegistryStorage for StoredArchetype {
     type ValueId = ResourceId;
     
     type OwnedValue = EntityStorageRegistry;

@@ -2,13 +2,13 @@ use std::{collections::HashMap, sync::OnceLock};
 
 use aion_state::prelude::Registry;
 
-use crate::prelude::{ArchetypeId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, StoredResourceStorage, TransmutableOwned, TransmutableShared};
+use crate::prelude::{ArchetypeId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, StoredArchetype, TransmutableOwned, TransmutableShared};
 
-pub mod stored_resource_storage;
+pub mod stored_archetype;
 pub mod resource_id;
 
 pub type ArchetypeStorageRegistry = Registry<
-    StoredResourceStorage,
+    StoredArchetype,
     InnerReservationStorage<ResourceId>,
     InnerAccessStorage<ResourceId>,
     InnerCredentialStorage,
