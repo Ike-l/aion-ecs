@@ -34,11 +34,11 @@ impl<'a> TransmutableOwned for &'a mut EntityStorageRegistry {
     }
 }
 
-pub struct ResourceStorage {
+pub struct Archetype {
     inner: HashMap<ResourceId, EntityStorageRegistry>,
 }
 
-impl ResourceStorage {
+impl Archetype {
     pub fn new(archetypes: HashMap<ResourceId, EntityStorageRegistry>) -> Self {
         Self {
             inner: archetypes,
@@ -46,7 +46,7 @@ impl ResourceStorage {
     }
 }
 
-impl ResourceStorage {
+impl Archetype {
     pub fn get_mut(
         &mut self,
         resource_id: &ResourceId,

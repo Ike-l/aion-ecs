@@ -1,11 +1,11 @@
 use aion_state::prelude::RegistryStorage;
 
-use crate::prelude::{ResourceId, ResourceStorage, EntityStorageRegistry};
+use crate::prelude::{ResourceId, Archetype, EntityStorageRegistry};
 
-pub mod resource_storage;
+pub mod archetype;
 
 pub struct StoredResourceStorage {
-    resource_storage: ResourceStorage
+    resource_storage: Archetype
 }
 
 impl RegistryStorage for StoredResourceStorage {

@@ -29,8 +29,8 @@ pub mod prelude {
                     },
                     stored_resource_storage::{
                         StoredResourceStorage,
-                        resource_storage::{
-                            ResourceStorage,
+                        archetype::{
+                            Archetype,
                             EntityStorageRegistry,
                             entity_storage::{
                                 EntityStorage,
