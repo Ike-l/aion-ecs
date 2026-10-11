@@ -36,7 +36,7 @@ impl<'a> TransmutableOwned for &'a mut ArchetypeStorageRegistry {
 pub static GLOBAL_ARCHETYPE_STORAGE_CAPACITY: OnceLock<usize> = OnceLock::new();
 
 pub struct ArchetypeStorage {
-    inner: HashMap<ArchetypeId, ArchetypeStorageRegistry>,
+    inner: HashMap<ArchetypeId, Box<ArchetypeStorageRegistry>>,
     calculated_len: usize,
     capacity: usize
 }
@@ -63,7 +63,7 @@ impl ArchetypeStorage {
         &mut self,
         archetype_id: &ArchetypeId
     ) -> Option<&mut ArchetypeStorageRegistry> {
-        self.inner.get_mut(archetype_id)
+        self.inner.get_mut(archetype_id).map(|boxed| boxed.as_mut())
     }
 
     pub fn insert(
@@ -71,13 +71,13 @@ impl ArchetypeStorage {
         archetype_id: ArchetypeId, 
         archetype_storage_registry: ArchetypeStorageRegistry
     ) -> Option<ArchetypeStorageRegistry> {
-        let r = self.inner.insert(archetype_id, archetype_storage_registry);
+        let r = self.inner.insert(archetype_id, Box::new(archetype_storage_registry));
 
         if r.is_none() {
             self.calculated_len += 1;
         }
 
-        r
+        r.map(|r| *r)
     }
 
     pub fn remove(
@@ -90,7 +90,7 @@ impl ArchetypeStorage {
             self.calculated_len -= 1;
         }
 
-        r
+        r.map(|r| *r)
     }
 
     pub fn contains_key(

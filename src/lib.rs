@@ -32,7 +32,6 @@ pub mod prelude {
                         resource_storage::{
                             ResourceStorage,
                             ResourceStorageRegistry,
-                            GLOBAL_RESOURCE_STORAGE_CAPACITY,
                             stored_entity_storage::{
                                 StoredEntityStorage,
                                 entity_storage::{
