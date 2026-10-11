@@ -1,5 +1,5 @@
 #[derive(Eq, PartialEq, Hash, Clone)]
 pub struct EntityId {
-    id: usize,
-    epoch: usize
+    pub(crate) id: usize,
+    pub(crate) epoch: usize
 }
