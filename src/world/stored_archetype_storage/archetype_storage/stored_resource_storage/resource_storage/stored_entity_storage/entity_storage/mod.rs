@@ -1,8 +1,12 @@
-use std::{alloc::{Layout, alloc, dealloc}, ptr::{self, NonNull}, sync::{Arc, RwLock}};
+use std::{alloc::{Layout, alloc, dealloc}, ptr::{self, NonNull}, sync::Arc};
 
-use crate::prelude::{Resource, StoredResource};
+use parking_lot::RwLock;
+
+use crate::prelude::{Resource, StorageIter, StorageIterMut, StoredResource};
 
 pub mod stored_resource;
+pub mod storage_iter;
+pub mod storage_iter_mut;
 
 pub const ITEMS_PER_ENTITY_STORAGE_PAGE: usize = 1024;
 
@@ -97,26 +101,24 @@ impl EntityStorage {
     }
 
     pub fn is_alive(&self, index: usize) -> bool {
-        let alive = self.alive.read().unwrap();
+        let alive = self.alive.read();
         !(index >= alive.len() || !alive[index])
     }
 
     pub fn iter(&self) -> StorageIter<'_> {
-        StorageIter {
-            pages: &self.pages,
-            alive: Arc::clone(&self.alive),
-            layout_size: self.layout.size(),
-            current_index: 0,
-        }
+        StorageIter::new(
+            &self.pages,
+            Arc::clone(&self.alive),
+            self.layout.size(),
+        )
     }
 
     pub fn iter_mut(&mut self) -> StorageIterMut<'_> {
-        StorageIterMut {
-            pages: &self.pages,
-            alive: Arc::clone(&self.alive),
-            layout_size: self.layout.size(),
-            current_index: 0,
-        }
+        StorageIterMut::new(
+            &self.pages,
+            Arc::clone(&self.alive),
+            self.layout.size(),
+        )
     }
 }
 
@@ -134,75 +136,5 @@ impl Drop for EntityStorage {
                 }
             }
         }
-    }
-}
-
-pub struct StorageIter<'a> {
-    pages: &'a [NonNull<u8>],
-    alive: Arc<RwLock<Vec<bool>>>,
-    layout_size: usize,
-    current_index: usize,
-}
-
-impl<'a> Iterator for StorageIter<'a> {
-    type Item = Resource;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let alive_guard = self.alive.read().unwrap();
-        while self.current_index < alive_guard.len() {
-            let idx = self.current_index;
-            self.current_index += 1;
-
-            if alive_guard[idx] {
-                if self.layout_size == 0 {
-                    return Some(Resource::new(NonNull::<u8>::dangling().as_ptr(), None, None));
-                }
-
-                let page = idx / ITEMS_PER_ENTITY_STORAGE_PAGE;
-                let local = idx % ITEMS_PER_ENTITY_STORAGE_PAGE;
-
-                let ptr = unsafe {
-                    self.pages[page].as_ptr().add(local * self.layout_size)
-                };
-
-                return Some(Resource::new(ptr, None, None));
-            }
-        }
-        None
-    }
-}
-
-pub struct StorageIterMut<'a> {
-    pages: &'a [NonNull<u8>],
-    alive: Arc<RwLock<Vec<bool>>>,
-    layout_size: usize,
-    current_index: usize,
-}
-
-impl<'a> Iterator for StorageIterMut<'a> {
-    type Item = Resource;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let alive_guard = self.alive.read().unwrap();
-        while self.current_index < alive_guard.len() {
-            let idx = self.current_index;
-            self.current_index += 1;
-
-            if alive_guard[idx] {
-                if self.layout_size == 0 {
-                    return Some(Resource::new(NonNull::<u8>::dangling().as_ptr(), None, None));
-                }
-
-                let page = idx / ITEMS_PER_ENTITY_STORAGE_PAGE;
-                let local = idx % ITEMS_PER_ENTITY_STORAGE_PAGE;
-
-                let ptr = unsafe {
-                    self.pages[page].as_ptr().add(local * self.layout_size)
-                };
-
-                return Some(Resource::new(ptr, None, None));
-            }
-        }
-        None
     }
 }
