@@ -10,7 +10,7 @@ pub mod storage_iter_mut;
 
 pub const ITEMS_PER_ENTITY_STORAGE_PAGE: usize = 1024;
 
-pub struct EntityStorage {
+pub struct EntityMap {
     pages: Vec<NonNull<u8>>,
     layout: Layout,
     drop_fn: unsafe fn(*mut u8),
@@ -18,7 +18,7 @@ pub struct EntityStorage {
     alive: Arc<RwLock<Vec<bool>>>,
 }
 
-impl EntityStorage {
+impl EntityMap {
     pub fn new<T: 'static>(alive: Arc<RwLock<Vec<bool>>>) -> Self {
         Self {
             pages: Vec::new(),
@@ -122,7 +122,7 @@ impl EntityStorage {
     }
 }
 
-impl Drop for EntityStorage {
+impl Drop for EntityMap {
     fn drop(&mut self) {
         unsafe {
             if self.layout.size() > 0 {

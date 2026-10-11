@@ -1,15 +1,15 @@
 use aion_state::prelude::RegistryStorage;
 
-use crate::prelude::{EntityId, EntityStorage, StoredResource, UniqueResourceView};
+use crate::prelude::{EntityId, EntityMap, StoredResource, UniqueResourceView};
 
-pub mod entity_storage;
+pub mod entity_map;
 pub mod resource_views;
 
-pub struct StoredEntityStorage {
-    entity_storage: EntityStorage
+pub struct EntityStorage {
+    entity_storage: EntityMap
 }
 
-impl RegistryStorage for StoredEntityStorage {
+impl RegistryStorage for EntityStorage {
     type ValueId = EntityId;
     type OwnedValue = StoredResource;
     type ReferencedValue<'a> = UniqueResourceView where Self: 'a;

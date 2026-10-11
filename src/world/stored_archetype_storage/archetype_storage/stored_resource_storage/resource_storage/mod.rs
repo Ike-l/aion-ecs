@@ -2,14 +2,14 @@ use std::collections::HashMap;
 
 use aion_state::prelude::Registry;
 
-use crate::prelude::{EntityId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, StoredEntityStorage, TransmutableOwned, TransmutableShared};
+use crate::prelude::{EntityId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, EntityStorage, TransmutableOwned, TransmutableShared};
 
 
 pub mod entity_id;
-pub mod stored_entity_storage;
+pub mod entity_storage;
 
 pub type ResourceStorageRegistry = Registry<
-    StoredEntityStorage,
+    EntityStorage,
     InnerReservationStorage<EntityId>,
     InnerAccessStorage<EntityId>,
     InnerCredentialStorage,

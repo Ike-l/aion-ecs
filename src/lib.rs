@@ -32,8 +32,8 @@ pub mod prelude {
                         resource_storage::{
                             ResourceStorage,
                             ResourceStorageRegistry,
-                            stored_entity_storage::{
-                                StoredEntityStorage,
+                            entity_storage::{
+                                EntityStorage,
                                 resource_views::{
                                     unique_resource_view::{
                                         UniqueResourceView
@@ -45,8 +45,8 @@ pub mod prelude {
                                         NotImplementedOwnedResource
                                     }
                                 },
-                                entity_storage::{
-                                    EntityStorage,
+                                entity_map::{
+                                    EntityMap,
                                     ITEMS_PER_ENTITY_STORAGE_PAGE,
                                     storage_iter::{
                                         StorageIter
