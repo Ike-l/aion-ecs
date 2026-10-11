@@ -31,7 +31,7 @@ pub mod prelude {
                         StoredResourceStorage,
                         resource_storage::{
                             ResourceStorage,
-                            ResourceStorageRegistry,
+                            EntityStorageRegistry,
                             entity_storage::{
                                 EntityStorage,
                                 resource_views::{

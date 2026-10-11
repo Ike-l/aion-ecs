@@ -1,6 +1,6 @@
 use aion_state::prelude::RegistryStorage;
 
-use crate::prelude::{ResourceId, ResourceStorage, ResourceStorageRegistry};
+use crate::prelude::{ResourceId, ResourceStorage, EntityStorageRegistry};
 
 pub mod resource_storage;
 
@@ -11,7 +11,7 @@ pub struct StoredResourceStorage {
 impl RegistryStorage for StoredResourceStorage {
     type ValueId = ResourceId;
     
-    type OwnedValue = ResourceStorageRegistry;
+    type OwnedValue = EntityStorageRegistry;
     type ReferencedValue<'a> = &'a mut Self::OwnedValue where Self: 'a;
 
     fn get_mut(

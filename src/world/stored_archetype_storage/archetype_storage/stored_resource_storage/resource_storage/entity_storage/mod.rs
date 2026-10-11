@@ -6,7 +6,7 @@ pub mod entity_map;
 pub mod resource_views;
 
 pub struct EntityStorage {
-    entity_storage: EntityMap
+    entity_map: EntityMap
 }
 
 impl RegistryStorage for EntityStorage {
@@ -18,7 +18,7 @@ impl RegistryStorage for EntityStorage {
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<Self::ReferencedValue<'_>> {
-        unsafe { self.entity_storage.get_mut(value_id.id) }.map(|resource| UniqueResourceView::new(resource))
+        unsafe { self.entity_map.get_mut(value_id.id) }.map(|resource| UniqueResourceView::new(resource))
     }
 
     /// We do not return a replaced value
@@ -27,7 +27,7 @@ impl RegistryStorage for EntityStorage {
         value_id: Self::ValueId, 
         value: Self::OwnedValue
     ) -> Option<Self::OwnedValue> {
-        unsafe { self.entity_storage.write(value_id.id, value) };
+        unsafe { self.entity_map.write(value_id.id, value) };
 
         None
     }
@@ -37,7 +37,7 @@ impl RegistryStorage for EntityStorage {
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<Self::OwnedValue> {
-        unsafe { self.entity_storage.drop_at(value_id.id) };
+        unsafe { self.entity_map.drop_at(value_id.id) };
         
         None
     }
@@ -46,7 +46,7 @@ impl RegistryStorage for EntityStorage {
         &self, 
         value_id: &Self::ValueId
     ) -> bool {
-        self.entity_storage.is_alive(value_id.id)
+        self.entity_map.is_alive(value_id.id)
     }
 
     fn len(&self) -> usize {

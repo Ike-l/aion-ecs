@@ -8,7 +8,7 @@ use crate::prelude::{EntityId, InnerAccessStorage, InnerBlacklistStorage, InnerC
 pub mod entity_id;
 pub mod entity_storage;
 
-pub type ResourceStorageRegistry = Registry<
+pub type EntityStorageRegistry = Registry<
     EntityStorage,
     InnerReservationStorage<EntityId>,
     InnerAccessStorage<EntityId>,
@@ -18,16 +18,16 @@ pub type ResourceStorageRegistry = Registry<
     InnerControlStorage<EntityId>
 >;
 
-impl<'a> TransmutableShared for &'a mut ResourceStorageRegistry {
-    type AsShared = &'a ResourceStorageRegistry;
+impl<'a> TransmutableShared for &'a mut EntityStorageRegistry {
+    type AsShared = &'a EntityStorageRegistry;
 
     fn transmute(self) -> Self::AsShared {
         self
     }
 }
 
-impl<'a> TransmutableOwned for &'a mut ResourceStorageRegistry {
-    type AsOwned = ResourceStorageRegistry;
+impl<'a> TransmutableOwned for &'a mut EntityStorageRegistry {
+    type AsOwned = EntityStorageRegistry;
 
     fn transmute(self) -> Self::AsOwned {
         unimplemented!()
@@ -35,11 +35,11 @@ impl<'a> TransmutableOwned for &'a mut ResourceStorageRegistry {
 }
 
 pub struct ResourceStorage {
-    inner: HashMap<ResourceId, ResourceStorageRegistry>,
+    inner: HashMap<ResourceId, EntityStorageRegistry>,
 }
 
 impl ResourceStorage {
-    pub fn new(archetypes: HashMap<ResourceId, ResourceStorageRegistry>) -> Self {
+    pub fn new(archetypes: HashMap<ResourceId, EntityStorageRegistry>) -> Self {
         Self {
             inner: archetypes,
         }
@@ -50,22 +50,22 @@ impl ResourceStorage {
     pub fn get_mut(
         &mut self,
         resource_id: &ResourceId,
-    ) -> Option<&mut ResourceStorageRegistry> {
+    ) -> Option<&mut EntityStorageRegistry> {
         self.inner.get_mut(resource_id)
     }
 
     pub fn insert(
         &mut self,
         _resource_id: ResourceId,
-        _resource_storage_registry: ResourceStorageRegistry
-    ) -> Option<ResourceStorageRegistry> {
+        _resource_storage_registry: EntityStorageRegistry
+    ) -> Option<EntityStorageRegistry> {
         panic!("Archetype should never be modified!");
     }
 
     pub fn remove(
         &mut self,
         _resource_id: &ResourceId
-    ) -> Option<ResourceStorageRegistry> {
+    ) -> Option<EntityStorageRegistry> {
         panic!("Archetype should never be modified!");
     }
     
