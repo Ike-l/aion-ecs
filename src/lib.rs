@@ -22,7 +22,7 @@ pub mod prelude {
                 },
                 archetype_storage::{
                     ArchetypeStorage,
-                    ArchetypeStorageRegistry,
+                    StoredArchetypeRegistry,
                     GLOBAL_ARCHETYPE_STORAGE_CAPACITY,
                     resource_id::{
                         ResourceId

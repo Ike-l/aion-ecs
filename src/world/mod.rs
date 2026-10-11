@@ -1,6 +1,6 @@
 use aion_state::prelude::{Registry, RegistryAcquireAccess};
 
-use crate::prelude::{AccessResult, ArchetypeId, ArchetypeStorageRegistry, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, EntityStorageRegistry, StoredArchetypeStorage, StoredResource, UniqueResourceView};
+use crate::prelude::{AccessResult, ArchetypeId, StoredArchetypeRegistry, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, EntityStorageRegistry, StoredArchetypeStorage, StoredResource, UniqueResourceView};
 
 pub mod stored_archetype_storage;
 
@@ -47,7 +47,7 @@ pub struct World {
 
 impl World {
     fn test(&self) {
-        let r = self.archetypes.acquire_access::<AccessResult<&mut ArchetypeStorageRegistry>>(RegistryAcquireAccess {
+        let r = self.archetypes.acquire_access::<AccessResult<&mut StoredArchetypeRegistry>>(RegistryAcquireAccess {
             user_details: todo!(),
             resource_id: todo!(),
             access: todo!(),

@@ -7,7 +7,7 @@ use crate::prelude::{ArchetypeId, InnerAccessStorage, InnerBlacklistStorage, Inn
 pub mod stored_archetype;
 pub mod resource_id;
 
-pub type ArchetypeStorageRegistry = Registry<
+pub type StoredArchetypeRegistry = Registry<
     StoredArchetype,
     InnerReservationStorage<ResourceId>,
     InnerAccessStorage<ResourceId>,
@@ -17,16 +17,16 @@ pub type ArchetypeStorageRegistry = Registry<
     InnerControlStorage<ResourceId>
 >;
 
-impl<'a> TransmutableShared for &'a mut ArchetypeStorageRegistry {
-    type AsShared = &'a ArchetypeStorageRegistry;
+impl<'a> TransmutableShared for &'a mut StoredArchetypeRegistry {
+    type AsShared = &'a StoredArchetypeRegistry;
 
     fn transmute(self) -> Self::AsShared {
         self
     }
 }
 
-impl<'a> TransmutableOwned for &'a mut ArchetypeStorageRegistry {
-    type AsOwned = ArchetypeStorageRegistry;
+impl<'a> TransmutableOwned for &'a mut StoredArchetypeRegistry {
+    type AsOwned = StoredArchetypeRegistry;
 
     fn transmute(self) -> Self::AsOwned {
         unimplemented!()
@@ -36,7 +36,7 @@ impl<'a> TransmutableOwned for &'a mut ArchetypeStorageRegistry {
 pub static GLOBAL_ARCHETYPE_STORAGE_CAPACITY: OnceLock<usize> = OnceLock::new();
 
 pub struct ArchetypeStorage {
-    inner: HashMap<ArchetypeId, Box<ArchetypeStorageRegistry>>,
+    inner: HashMap<ArchetypeId, Box<StoredArchetypeRegistry>>,
     calculated_len: usize,
     capacity: usize
 }
@@ -62,15 +62,15 @@ impl ArchetypeStorage {
     pub fn get_mut(
         &mut self,
         archetype_id: &ArchetypeId
-    ) -> Option<&mut ArchetypeStorageRegistry> {
+    ) -> Option<&mut StoredArchetypeRegistry> {
         self.inner.get_mut(archetype_id).map(|boxed| boxed.as_mut())
     }
 
     pub fn insert(
         &mut self, 
         archetype_id: ArchetypeId, 
-        archetype_storage_registry: ArchetypeStorageRegistry
-    ) -> Option<ArchetypeStorageRegistry> {
+        archetype_storage_registry: StoredArchetypeRegistry
+    ) -> Option<StoredArchetypeRegistry> {
         let r = self.inner.insert(archetype_id, Box::new(archetype_storage_registry));
 
         if r.is_none() {
@@ -83,7 +83,7 @@ impl ArchetypeStorage {
     pub fn remove(
         &mut self, 
         archetype_id: &ArchetypeId
-    ) -> Option<ArchetypeStorageRegistry> {
+    ) -> Option<StoredArchetypeRegistry> {
         let r = self.inner.remove(archetype_id);
 
         if r.is_some() {

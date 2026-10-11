@@ -1,6 +1,6 @@
 use aion_state::prelude::RegistryStorage;
 
-use crate::prelude::{ArchetypeId, ArchetypeStorage, ArchetypeStorageRegistry};
+use crate::prelude::{ArchetypeId, ArchetypeStorage, StoredArchetypeRegistry};
 
 pub mod archetype_storage;
 pub mod archetype_id;
@@ -11,7 +11,7 @@ pub struct StoredArchetypeStorage {
 
 impl RegistryStorage for StoredArchetypeStorage {
     type ValueId = ArchetypeId;
-    type OwnedValue = ArchetypeStorageRegistry;
+    type OwnedValue = StoredArchetypeRegistry;
     type ReferencedValue<'a> = &'a mut Self::OwnedValue where Self: 'a;
 
     fn get_mut(
