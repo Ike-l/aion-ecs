@@ -1,89 +1,208 @@
-use std::{collections::HashMap, sync::OnceLock};
+use std::{alloc::{Layout, alloc, dealloc}, ptr::{self, NonNull}, sync::{Arc, RwLock}};
 
-use crate::prelude::{EntityId, StoredResource};
+use crate::prelude::{Resource, StoredResource};
 
 pub mod stored_resource;
 
-pub static GLOBAL_ENTITY_STORAGE_CAPACITY: OnceLock<usize> = OnceLock::new();
+pub const ITEMS_PER_ENTITY_STORAGE_PAGE: usize = 1024;
 
 pub struct EntityStorage {
-    inner: HashMap<EntityId, StoredResource>,
-    calculated_len: usize,
-    capacity: usize
-}
-
-impl Default for EntityStorage {
-    fn default() -> Self {
-        let capacity = *GLOBAL_ENTITY_STORAGE_CAPACITY.get_or_init(|| 1000);
-        Self::new(capacity)
-    }
+    pages: Vec<NonNull<u8>>,
+    layout: Layout,
+    drop_fn: unsafe fn(*mut u8),
+    write_fn: unsafe fn(*const u8, *mut u8),
+    alive: Arc<RwLock<Vec<bool>>>,
 }
 
 impl EntityStorage {
-    pub fn new(capacity: usize) -> Self {
+    pub fn new<T: 'static>(alive: Arc<RwLock<Vec<bool>>>) -> Self {
         Self {
-            inner: HashMap::with_capacity(capacity),
-            calculated_len: 0,
-            capacity
+            pages: Vec::new(),
+            layout: Layout::new::<T>(),
+            drop_fn: |ptr| unsafe { ptr::drop_in_place(ptr as *mut T); },
+            write_fn: |src, dst| unsafe {
+                let val = ptr::read(src as *const T);
+                ptr::write(dst as *mut T, val);
+            },
+            alive
+        }
+    }
+
+    /// Allocates pages until `index` exists
+    fn create_capacity(&mut self, index: usize) {
+        let required_pages = (index / ITEMS_PER_ENTITY_STORAGE_PAGE) + 1;
+
+        while self.pages.len() < required_pages {
+            if self.layout.size() == 0 {
+                self.pages.push(NonNull::dangling());
+            } else {
+                let page_layout = Layout::from_size_align(
+                    self.layout.size() * ITEMS_PER_ENTITY_STORAGE_PAGE, 
+                    self.layout.align()
+                ).unwrap();
+
+                let ptr = unsafe { alloc(page_layout) };
+                self.pages.push(NonNull::new(ptr).expect("Memory Allocation Failed"));
+            }
+        }
+    }
+
+    /// Calculates where the index exists and returns the pointer to that element
+    /// 
+    /// Safety: 
+    /// * `index` is valid
+    unsafe fn get_raw_ptr_mut(&self, index: usize) -> *mut u8 {
+        let page = index / ITEMS_PER_ENTITY_STORAGE_PAGE;
+        let local = index % ITEMS_PER_ENTITY_STORAGE_PAGE;
+        let page_ptr = self.pages[page].as_ptr();
+        unsafe { page_ptr.add(local * self.layout.size()) }
+    }
+
+    /// Drops the piece of memory at `index`
+    /// 
+    /// Safety: 
+    /// * Caller must guarantee the slot is currently alive and active.
+    pub unsafe fn drop_at(&mut self, index: usize) {
+        if self.layout.size() > 0 {
+            let ptr = unsafe { self.get_raw_ptr_mut(index) };
+            unsafe { (self.drop_fn)(ptr) };
+        }
+    }
+
+    /// Writes `value` to `index`
+    pub unsafe fn write(&mut self, index: usize, stored_resource: StoredResource) {
+        self.create_capacity(index);
+
+        if self.layout.size() > 0 {
+            let dst = unsafe { self.get_raw_ptr_mut(index) };
+            unsafe { (self.write_fn)(stored_resource.ptr(), dst) };
+
+            if stored_resource.layout().size() > 0 {
+                unsafe { dealloc(stored_resource.ptr(), *stored_resource.layout()) };
+            }
+        }
+
+        std::mem::forget(stored_resource);
+    }
+
+    /// Safety:
+    /// * `index` is valid
+    pub unsafe fn get_mut(&mut self, index: usize) -> Option<Resource> {
+        if !self.is_alive(index) {
+            return None
+        }
+
+        let ptr = unsafe { self.get_raw_ptr_mut(index) };
+        Some(Resource::new(ptr, None, None))
+    }
+
+    pub fn is_alive(&self, index: usize) -> bool {
+        let alive = self.alive.read().unwrap();
+        !(index >= alive.len() || !alive[index])
+    }
+
+    pub fn iter(&self) -> StorageIter<'_> {
+        StorageIter {
+            pages: &self.pages,
+            alive: Arc::clone(&self.alive),
+            layout_size: self.layout.size(),
+            current_index: 0,
+        }
+    }
+
+    pub fn iter_mut(&mut self) -> StorageIterMut<'_> {
+        StorageIterMut {
+            pages: &self.pages,
+            alive: Arc::clone(&self.alive),
+            layout_size: self.layout.size(),
+            current_index: 0,
         }
     }
 }
 
-impl EntityStorage {
-    pub fn get_mut(
-        &mut self,
-        entity_id: &EntityId
-    ) -> Option<&mut StoredResource> {
-        self.inner.get_mut(entity_id)
-    }
+impl Drop for EntityStorage {
+    fn drop(&mut self) {
+        unsafe {
+            if self.layout.size() > 0 {
+                let page_layout = Layout::from_size_align(
+                    self.layout.size() * ITEMS_PER_ENTITY_STORAGE_PAGE, 
+                    self.layout.align()
+                ).unwrap();
 
-    pub fn insert(
-        &mut self, 
-        entity_id: EntityId, 
-        stored_resource: StoredResource
-    ) -> Option<StoredResource> {
-        let r = self.inner.insert(entity_id, stored_resource);
-
-        if r.is_none() {
-            self.calculated_len += 1;
+                for page in &self.pages {
+                    dealloc(page.as_ptr(), page_layout);
+                }
+            }
         }
-
-        r
     }
+}
 
-    pub fn remove(
-        &mut self, 
-        entity_id: &EntityId
-    ) -> Option<StoredResource> {
-        let r = self.inner.remove(entity_id);
+pub struct StorageIter<'a> {
+    pages: &'a [NonNull<u8>],
+    alive: Arc<RwLock<Vec<bool>>>,
+    layout_size: usize,
+    current_index: usize,
+}
 
-        if r.is_some() {
-            self.calculated_len -= 1;
+impl<'a> Iterator for StorageIter<'a> {
+    type Item = Resource;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let alive_guard = self.alive.read().unwrap();
+        while self.current_index < alive_guard.len() {
+            let idx = self.current_index;
+            self.current_index += 1;
+
+            if alive_guard[idx] {
+                if self.layout_size == 0 {
+                    return Some(Resource::new(NonNull::<u8>::dangling().as_ptr(), None, None));
+                }
+
+                let page = idx / ITEMS_PER_ENTITY_STORAGE_PAGE;
+                let local = idx % ITEMS_PER_ENTITY_STORAGE_PAGE;
+
+                let ptr = unsafe {
+                    self.pages[page].as_ptr().add(local * self.layout_size)
+                };
+
+                return Some(Resource::new(ptr, None, None));
+            }
         }
-
-        r
+        None
     }
+}
 
-    pub fn contains_key(
-        &self, 
-        entity_id: &EntityId
-    ) -> bool {
-        self.inner.contains_key(entity_id)
-    }
+pub struct StorageIterMut<'a> {
+    pages: &'a [NonNull<u8>],
+    alive: Arc<RwLock<Vec<bool>>>,
+    layout_size: usize,
+    current_index: usize,
+}
 
-    pub fn len(&self) -> usize {
-        self.inner.len()
-    }
+impl<'a> Iterator for StorageIterMut<'a> {
+    type Item = Resource;
 
-    pub fn keys(&self) -> impl Iterator<Item = &EntityId> {
-        self.inner.keys()
-    }
+    fn next(&mut self) -> Option<Self::Item> {
+        let alive_guard = self.alive.read().unwrap();
+        while self.current_index < alive_guard.len() {
+            let idx = self.current_index;
+            self.current_index += 1;
 
-    pub unsafe fn next_insert_may_reallocates(&self) -> bool {
-        self.calculated_len >= self.capacity
-    }
+            if alive_guard[idx] {
+                if self.layout_size == 0 {
+                    return Some(Resource::new(NonNull::<u8>::dangling().as_ptr(), None, None));
+                }
 
-    pub unsafe fn next_removal_may_reallocates(&self) -> bool {
-        false
+                let page = idx / ITEMS_PER_ENTITY_STORAGE_PAGE;
+                let local = idx % ITEMS_PER_ENTITY_STORAGE_PAGE;
+
+                let ptr = unsafe {
+                    self.pages[page].as_ptr().add(local * self.layout_size)
+                };
+
+                return Some(Resource::new(ptr, None, None));
+            }
+        }
+        None
     }
 }
