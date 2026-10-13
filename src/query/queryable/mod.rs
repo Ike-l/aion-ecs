@@ -28,27 +28,29 @@ pub trait Fetch {
     type Output<'a> where Self: 'a;
 }
 
-impl<T> Fetch for &T {
-    type Output<'a> = &'a T where Self: 'a;
-}
-
-impl<T> Fetch for &mut T {
-    type Output<'a> = &'a mut T where Self: 'a;
+impl<T: Data> Fetch for T {
+    type Output<'a> = T::Output<'a> where Self: 'a;
 }
 
 impl<T: Data> Fetch for Option<T> {
     type Output<'a> = Option<T::Output<'a>> where Self: 'a;
 }
 
-impl<L, R> Fetch for And<L, R> where L: Data, R: Data {
+impl<L, R> Fetch for And<L, R> where L: Fetch, R: Fetch {
     type Output<'a> = And<L::Output<'a>, R::Output<'a>> where Self: 'a;
 }
 
-impl<L, R> Fetch for Or<L, R> where L: Data, R: Data {
+impl<L, R> Fetch for Or<L, R> where L: Fetch, R: Fetch {
     type Output<'a> = Or<L::Output<'a>, R::Output<'a>> where Self: 'a;
 }
 
 // T1, T2, .., TN
+impl<T1: Fetch, T2: Fetch> Fetch for (T1, T2) {
+    type Output<'a> = (T1::Output<'a>, T2::Output<'a>) where Self: 'a;
+}
+impl<T1: Fetch, T2: Fetch, T3: Fetch> Fetch for (T1, T2, T3) {
+    type Output<'a> = (T1::Output<'a>, T2::Output<'a>, T3::Output<'a>) where Self: 'a;
+}
 impl<T1: Fetch, T2: Fetch, T3: Fetch, T4: Fetch> Fetch for (T1, T2, T3, T4) {
     type Output<'a> = (T1::Output<'a>, T2::Output<'a>, T3::Output<'a>, T4::Output<'a>) where Self: 'a;
 }
@@ -57,11 +59,21 @@ pub trait Filter {}
 impl<T: Data> Filter for With<T> {}
 impl<T: Data> Filter for Without<T> {}
 // T1, T2, .., TN
+impl<T1: Filter, T2: Filter> Filter for (T1, T2) {}
+impl<T1: Filter, T2: Filter, T3: Filter> Filter for (T1, T2, T3) {}
 impl<T1: Filter, T2: Filter, T3: Filter, T4: Filter> Filter for (T1, T2, T3, T4) {}
 
-pub trait Data: Fetch {}
-impl<T> Data for &T {}
-impl<T> Data for &mut T {}
+pub trait Data {
+    type Output<'a> where Self: 'a;
+}
+
+impl<T> Data for &T {
+    type Output<'a> = &'a T where Self: 'a;
+}
+
+impl<T> Data for &mut T {
+    type Output<'a> = &'a mut T where Self: 'a;
+}
 
 pub struct And<L, R> {
     left: L,
