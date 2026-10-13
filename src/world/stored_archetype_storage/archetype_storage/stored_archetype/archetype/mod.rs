@@ -3,11 +3,12 @@ use std::{collections::HashMap, sync::Arc};
 use aion_state::prelude::Registry;
 use parking_lot::RwLock;
 
-use crate::prelude::{EntityId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, EntityStorage, TransmutableOwned, TransmutableShared};
+use crate::prelude::{EntityId, EntityMonitor, EntityStorage, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, TransmutableOwned, TransmutableShared};
 
 
 pub mod entity_id;
 pub mod entity_storage;
+pub mod entity_monitor;
 
 pub type EntityStorageRegistry = Registry<
     EntityStorage,
@@ -37,8 +38,7 @@ impl<'a> TransmutableOwned for &'a mut EntityStorageRegistry {
 
 pub struct Archetype {
     inner: HashMap<ResourceId, EntityStorageRegistry>,
-    entities: Vec<EntityId>,
-    alive: Arc<RwLock<Vec<bool>>>
+    entity_monitor: Arc<RwLock<EntityMonitor>>
 }
 
 // When Remove EntityId:
@@ -68,8 +68,7 @@ impl Archetype {
     ) -> Self {
         Self {
             inner: archetypes,
-            entities: vec![],
-            alive: Arc::new(RwLock::new(vec![]))
+            entity_monitor: Default::default()
         }
     }
 
