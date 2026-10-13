@@ -108,6 +108,18 @@ pub mod prelude {
         },
         password::{
             Password
+        },
+        query::{
+            queryable::{
+                And,
+                Data,
+                Fetch,
+                Filter,
+                Or,
+                Queryable,
+                With,
+                Without,
+            }
         }
     };
 }
