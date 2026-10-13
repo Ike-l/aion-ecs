@@ -46,61 +46,61 @@ pub struct World {
 // Singletons like Time?
 
 impl World {
-    fn test(&self) {
-        let r = self.archetypes.acquire_access::<AccessResult<&mut StoredArchetypeRegistry>>(RegistryAcquireAccess {
-            user_details: todo!(),
-            resource_id: todo!(),
-            access: todo!(),
-            password: todo!(),
-        });
+    // fn test(&self) {
+    //     let r = self.archetypes.acquire_access::<AccessResult<&mut StoredArchetypeRegistry>>(RegistryAcquireAccess {
+    //         user_details: todo!(),
+    //         resource_id: todo!(),
+    //         access: todo!(),
+    //         password: todo!(),
+    //     });
 
-        match r {
-            Ok(r) => {
-                match r {
-                    AccessResult::Shared(r) => {
-                        let r = r.acquire_access::<AccessResult<&mut EntityStorageRegistry>>(RegistryAcquireAccess {
-                            user_details: todo!(),
-                            resource_id: todo!(),
-                            access: todo!(),
-                            password: todo!(),
-                        });
+    //     match r {
+    //         Ok(r) => {
+    //             match r {
+    //                 AccessResult::Shared(r) => {
+    //                     let r = r.acquire_access::<AccessResult<&mut EntityStorageRegistry>>(RegistryAcquireAccess {
+    //                         user_details: todo!(),
+    //                         resource_id: todo!(),
+    //                         access: todo!(),
+    //                         password: todo!(),
+    //                     });
 
-                        match r {
-                            Ok(r) => {
-                                match r {
-                                    AccessResult::Shared(r) => {
-                                        let r = r.acquire_access::<AccessResult<UniqueResourceView>>(RegistryAcquireAccess {
-                                            user_details: todo!(),
-                                            resource_id: todo!(),
-                                            access: todo!(),
-                                            password: todo!(),
-                                        });
+    //                     match r {
+    //                         Ok(r) => {
+    //                             match r {
+    //                                 AccessResult::Shared(r) => {
+    //                                     let r = r.acquire_access::<AccessResult<UniqueResourceView>>(RegistryAcquireAccess {
+    //                                         user_details: todo!(),
+    //                                         resource_id: todo!(),
+    //                                         access: todo!(),
+    //                                         password: todo!(),
+    //                                     });
 
-                                        match r {
-                                            Ok(r) => {
-                                                match r {
-                                                    AccessResult::Shared(r) => {
-                                                        // r.as_shared();
-                                                    },
-                                                    AccessResult::Unique(r) => todo!(),
-                                                    AccessResult::Owned(r) => todo!(),
-                                                }
-                                            },
-                                            Err(err) => todo!(),
-                                        }
-                                    },
-                                    AccessResult::Unique(r) => todo!(),
-                                    AccessResult::Owned(r) => todo!(),
-                                }
-                            },
-                            Err(err) => todo!(),
-                        }
-                    },
-                    AccessResult::Unique(r) => todo!(),
-                    AccessResult::Owned(r) => todo!(),
-                }
-            },
-            Err(err) => todo!(),
-        }
-    }
+    //                                     match r {
+    //                                         Ok(r) => {
+    //                                             match r {
+    //                                                 AccessResult::Shared(r) => {
+    //                                                     // r.as_shared();
+    //                                                 },
+    //                                                 AccessResult::Unique(r) => todo!(),
+    //                                                 AccessResult::Owned(r) => todo!(),
+    //                                             }
+    //                                         },
+    //                                         Err(err) => todo!(),
+    //                                     }
+    //                                 },
+    //                                 AccessResult::Unique(r) => todo!(),
+    //                                 AccessResult::Owned(r) => todo!(),
+    //                             }
+    //                         },
+    //                         Err(err) => todo!(),
+    //                     }
+    //                 },
+    //                 AccessResult::Unique(r) => todo!(),
+    //                 AccessResult::Owned(r) => todo!(),
+    //             }
+    //         },
+    //         Err(err) => todo!(),
+    //     }
+    // }
 }
