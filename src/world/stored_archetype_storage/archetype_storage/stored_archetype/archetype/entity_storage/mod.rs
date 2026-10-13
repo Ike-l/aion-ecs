@@ -1,6 +1,6 @@
 use aion_state::prelude::RegistryStorage;
 
-use crate::prelude::{EntityId, EntityMap, StoredResource, UniqueResourceView};
+use crate::prelude::{EntityId, EntityMap, StorageIterMut, StoredResource, UniqueResourceView};
 
 pub mod entity_map;
 pub mod resource_views;
@@ -13,13 +13,13 @@ impl RegistryStorage for EntityStorage {
     type ValueId = EntityId;
     type OwnedValue = StoredResource;
     type ReferencedValue<'a> = UniqueResourceView where Self: 'a;
-    type StorageView<'a> = UniqueResourceView where Self: 'a;
+    type StorageView<'a> = StorageIterMut<'a> where Self: 'a;
 
     fn get_mut(
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<Self::ReferencedValue<'_>> {
-        unsafe { self.entity_map.get_mut(value_id.id) }.map(|resource| UniqueResourceView::new(resource))
+        self.entity_map.get_mut(value_id).map(|resource| UniqueResourceView::new(resource))
     }
     
     fn get_view(
@@ -27,36 +27,29 @@ impl RegistryStorage for EntityStorage {
         value_ids: &[&Self::ValueId]
     ) -> Option<Self::StorageView<'_>>
     {
-        // self.entity_map.iter_mut(value_ids);
-        todo!()
+        self.entity_map.iter_mut(value_ids)
     }
 
-    /// We do not return a replaced value
     fn insert(
         &mut self, 
         value_id: Self::ValueId, 
         value: Self::OwnedValue
     ) -> Option<Self::OwnedValue> {
-        unsafe { self.entity_map.write(value_id.id, value) };
-
-        None
+        self.entity_map.insert(value_id, value)
     }
 
-    /// We do not return the value
     fn remove(
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<Self::OwnedValue> {
-        unsafe { self.entity_map.drop_at(value_id.id) };
-        
-        None
+        self.entity_map.remove(value_id)
     }
 
     fn contains_key(
         &self, 
         value_id: &Self::ValueId
     ) -> bool {
-        self.entity_map.is_alive(value_id.id)
+        self.entity_map.valid(value_id)
     }
 
     fn len(&self) -> usize {
