@@ -2,7 +2,7 @@ use std::{alloc::{Layout, alloc, dealloc}, ptr::{self, NonNull}, sync::Arc};
 
 use parking_lot::RwLock;
 
-use crate::prelude::{Resource, StorageIter, StorageIterMut, StoredResource};
+use crate::prelude::{EntityId, EntityMonitor, Resource, StorageIterMut, StoredResource};
 
 pub mod stored_resource;
 pub mod storage_iter;
@@ -15,11 +15,11 @@ pub struct EntityMap {
     layout: Layout,
     drop_fn: unsafe fn(*mut u8),
     write_fn: unsafe fn(*const u8, *mut u8),
-    alive: Arc<RwLock<Vec<bool>>>,
+    entity_monitor: Arc<RwLock<EntityMonitor>>,
 }
 
 impl EntityMap {
-    pub fn new<T: 'static>(alive: Arc<RwLock<Vec<bool>>>) -> Self {
+    pub fn new<T: 'static>(entity_monitor: Arc<RwLock<EntityMonitor>>) -> Self {
         Self {
             pages: Vec::new(),
             layout: Layout::new::<T>(),
@@ -28,7 +28,7 @@ impl EntityMap {
                 let val = ptr::read(src as *const T);
                 ptr::write(dst as *mut T, val);
             },
-            alive
+            entity_monitor
         }
     }
 
@@ -62,23 +62,48 @@ impl EntityMap {
         unsafe { page_ptr.add(local * self.layout.size()) }
     }
 
-    /// Drops the piece of memory at `index`
-    /// 
-    /// Safety: 
-    /// * Caller must guarantee the slot is currently alive and active.
-    pub unsafe fn drop_at(&mut self, index: usize) {
-        if self.layout.size() > 0 {
-            let ptr = unsafe { self.get_raw_ptr_mut(index) };
-            unsafe { (self.drop_fn)(ptr) };
-        }
+    pub fn valid(&self, entity_id: &EntityId) -> bool {
+        self.entity_monitor.read().valid(entity_id)
     }
 
-    /// Writes `value` to `index`
-    pub unsafe fn write(&mut self, index: usize, stored_resource: StoredResource) {
-        self.create_capacity(index);
+    pub fn remove(&mut self, entity_id: &EntityId) -> Option<StoredResource> {
+        if !self.entity_monitor.read().valid(entity_id) {
+            return None;
+        }
+
+        let layout = self.layout;
+
+        let raw_ptr = if layout.size() == 0 {
+            ptr::null_mut()
+        } else {
+            let ptr = unsafe { self.get_raw_ptr_mut(entity_id.index) };
+            if ptr.is_null() {
+                panic!("Allocation failed during remove");
+            }
+
+            ptr
+        };
+
+        let src_ptr = unsafe { self.get_raw_ptr_mut(entity_id.index) };
 
         if self.layout.size() > 0 {
-            let dst = unsafe { self.get_raw_ptr_mut(index) };
+            unsafe { (self.write_fn)(src_ptr, raw_ptr) }
+        }
+
+        let resource = Resource::new(raw_ptr, None, None);
+
+        Some(StoredResource::from_resource(
+            resource, layout, self.drop_fn
+        ))
+    }
+
+    pub fn insert(&mut self, entity_id: EntityId, stored_resource: StoredResource) -> Option<StoredResource> {
+        // todo!("check entity id index can be written to");
+
+        self.create_capacity(entity_id.index);
+
+        if self.layout.size() > 0 {
+            let dst = unsafe { self.get_raw_ptr_mut(entity_id.index) };
             unsafe { (self.write_fn)(stored_resource.ptr(), dst) };
 
             if stored_resource.layout().size() > 0 {
@@ -87,38 +112,33 @@ impl EntityMap {
         }
 
         std::mem::forget(stored_resource);
+
+        None
     }
 
-    /// Safety:
-    /// * `index` is valid
-    pub unsafe fn get_mut(&mut self, index: usize) -> Option<Resource> {
-        if !self.is_alive(index) {
+    pub fn get_mut(&mut self, entity_id: &EntityId) -> Option<Resource> {
+        if !self.entity_monitor.read().valid(entity_id) {
             return None
         }
 
-        let ptr = unsafe { self.get_raw_ptr_mut(index) };
+        let ptr = unsafe { self.get_raw_ptr_mut(entity_id.index) };
         Some(Resource::new(ptr, None, None))
     }
 
-    pub fn is_alive(&self, index: usize) -> bool {
-        let alive = self.alive.read();
-        !(index >= alive.len() || !alive[index])
-    }
+    pub fn iter_mut(&mut self, target_entities: &[&EntityId]) -> Option<StorageIterMut<'_>> {
+        let entity_monitor = self.entity_monitor.read();
+        let any_not_valid = target_entities.iter().any(|target_entity_id| entity_monitor.valid(target_entity_id));
 
-    pub fn iter(&self) -> StorageIter<'_> {
-        StorageIter::new(
-            &self.pages,
-            Arc::clone(&self.alive),
-            self.layout.size(),
-        )
-    }
+        if any_not_valid {
+            return None;
+        }
 
-    pub fn iter_mut(&mut self) -> StorageIterMut<'_> {
-        StorageIterMut::new(
+        Some(StorageIterMut::new(
             &self.pages,
-            Arc::clone(&self.alive),
+            Arc::clone(&self.entity_monitor),
+            target_entities,
             self.layout.size(),
-        )
+        ))
     }
 }
 
