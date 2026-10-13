@@ -11,6 +11,16 @@ pub struct StoredResource {
 }
 
 impl StoredResource {
+    pub fn from_resource(
+        resource: Resource,
+        layout: Layout,
+        drop_fn: unsafe fn(*mut u8),
+    ) -> Self {
+        Self {
+            resource, layout, drop_fn
+        }
+    }
+
     pub fn new<T: 'static>(value: T) -> Self {
         let layout = Layout::new::<T>();
         let ptr = if layout.size() == 0 {
