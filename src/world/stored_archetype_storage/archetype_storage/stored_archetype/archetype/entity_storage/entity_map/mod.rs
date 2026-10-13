@@ -126,13 +126,6 @@ impl EntityMap {
     }
 
     pub fn iter_mut(&mut self, target_entities: &[&EntityId]) -> Option<StorageIterMut<'_>> {
-        let entity_monitor = self.entity_monitor.read();
-        let any_not_valid = target_entities.iter().any(|target_entity_id| !entity_monitor.valid(target_entity_id));
-
-        if any_not_valid {
-            return None;
-        }
-
         Some(StorageIterMut::new(
             &self.pages,
             Arc::clone(&self.entity_monitor),
