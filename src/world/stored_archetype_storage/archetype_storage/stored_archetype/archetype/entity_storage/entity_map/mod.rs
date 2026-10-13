@@ -136,7 +136,7 @@ impl EntityMap {
         Some(StorageIterMut::new(
             &self.pages,
             Arc::clone(&self.entity_monitor),
-            target_entities,
+            target_entities.into_iter().map(|&target_entity_id| target_entity_id.clone()).collect(),
             self.layout.size(),
         ))
     }
