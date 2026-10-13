@@ -8,17 +8,28 @@ pub struct StoredArchetype {
     resource_storage: Archetype
 }
 
+pub struct NotImplementedStoredArchetypeStorageView;
+
 impl RegistryStorage for StoredArchetype {
     type ValueId = ResourceId;
     
     type OwnedValue = EntityStorageRegistry;
     type ReferencedValue<'a> = &'a mut Self::OwnedValue where Self: 'a;
+    type StorageView<'a> = NotImplementedStoredArchetypeStorageView where Self: 'a;
 
     fn get_mut(
         &mut self,
         value_id: &Self::ValueId
     ) -> Option<Self::ReferencedValue<'_>> {
         self.resource_storage.get_mut(value_id)
+    }
+
+    fn get_view(
+        &mut self,
+        value_ids: &[&Self::ValueId]
+    ) -> Option<Self::StorageView<'_>>
+    {
+        unimplemented!()
     }
 
     fn insert(

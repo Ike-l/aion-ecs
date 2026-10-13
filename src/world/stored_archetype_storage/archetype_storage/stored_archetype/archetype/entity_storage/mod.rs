@@ -13,12 +13,22 @@ impl RegistryStorage for EntityStorage {
     type ValueId = EntityId;
     type OwnedValue = StoredResource;
     type ReferencedValue<'a> = UniqueResourceView where Self: 'a;
+    type StorageView<'a> = UniqueResourceView where Self: 'a;
 
     fn get_mut(
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<Self::ReferencedValue<'_>> {
         unsafe { self.entity_map.get_mut(value_id.id) }.map(|resource| UniqueResourceView::new(resource))
+    }
+    
+    fn get_view(
+        &mut self,
+        value_ids: &[&Self::ValueId]
+    ) -> Option<Self::StorageView<'_>>
+    {
+        // self.entity_map.iter_mut(value_ids);
+        todo!()
     }
 
     /// We do not return a replaced value
