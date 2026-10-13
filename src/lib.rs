@@ -32,6 +32,9 @@ pub mod prelude {
                         archetype::{
                             Archetype,
                             EntityStorageRegistry,
+                            entity_monitor::{
+                                EntityMonitor
+                            },
                             entity_storage::{
                                 EntityStorage,
                                 resource_views::{
