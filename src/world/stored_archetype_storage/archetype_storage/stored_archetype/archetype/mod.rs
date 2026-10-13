@@ -1,6 +1,7 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use aion_state::prelude::Registry;
+use parking_lot::RwLock;
 
 use crate::prelude::{EntityId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, EntityStorage, TransmutableOwned, TransmutableShared};
 
@@ -36,17 +37,42 @@ impl<'a> TransmutableOwned for &'a mut EntityStorageRegistry {
 
 pub struct Archetype {
     inner: HashMap<ResourceId, EntityStorageRegistry>,
+    entities: Vec<EntityId>,
+    alive: Arc<RwLock<Vec<bool>>>
 }
 
+// When Remove EntityId:
+// * Drop data in ALL *inner*
+// * Mark as Dead in `alive`
+
+// When Insert Entity:
+// * Search `alive` for the first dead entity
+// * If found:
+// ** Mark as Alive
+// ** Bump Epoch of EntityId in `entities`
+// * If not found:
+// ** Mark as Alive 
+// ** Append new EntityId
+// * Insert Data
+// * Return EntityId
+
+// Optimisation:
+// When Remove push index to Stack
+// When Insert pop index from Stack
+
+
+
 impl Archetype {
-    pub fn new(archetypes: HashMap<ResourceId, EntityStorageRegistry>) -> Self {
+    pub fn new_empty(
+        archetypes: HashMap<ResourceId, EntityStorageRegistry>
+    ) -> Self {
         Self {
             inner: archetypes,
+            entities: vec![],
+            alive: Arc::new(RwLock::new(vec![]))
         }
     }
-}
 
-impl Archetype {
     pub fn get_mut(
         &mut self,
         resource_id: &ResourceId,
