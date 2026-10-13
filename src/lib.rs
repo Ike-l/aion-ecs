@@ -12,6 +12,8 @@ pub mod password;
 pub mod access;
 pub mod access_result;
 
+pub mod query;
+
 pub mod prelude {
     pub use super::{
         world::{
