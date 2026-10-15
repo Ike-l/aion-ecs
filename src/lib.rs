@@ -57,12 +57,12 @@ pub mod prelude {
                             },
                             entity_storage::{
                                 EntityStorage,
-                                resources::{
-                                    unique_resource::{
-                                        UniqueResource
+                                stored_resources::{
+                                    unique_stored_resource::{
+                                        UniqueStoredResource
                                     },
-                                    shared_resource::{
-                                        SharedResource
+                                    shared_stored_resource::{
+                                        SharedStoredResource
                                     },
                                     owned_resource::{
                                         NotImplementedOwnedResource
@@ -82,7 +82,12 @@ pub mod prelude {
                                     stored_resource::{
                                         StoredResource,
                                         resource::{
-                                            Resource,
+                                            unique_resource::{
+                                                UniqueResource
+                                            },
+                                            shared_resource::{
+                                                SharedResource
+                                            }
                                         }
                                     },
                                 }
