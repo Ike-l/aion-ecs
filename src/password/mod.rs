@@ -4,7 +4,7 @@ pub struct Password {
 }
 
 impl From<u64> for Password {
-    fn from(value: u64) -> Self {
+    fn from(_value: u64) -> Self {
         todo!()
     }
 }
