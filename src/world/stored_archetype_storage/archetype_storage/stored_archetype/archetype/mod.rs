@@ -39,7 +39,7 @@ impl<'a> TransmutableOwned for &'a mut EntityStorageRegistry {
 
 pub struct Archetype {
     inner: HashMap<ResourceId, EntityStorageRegistry>,
-    entity_monitor: Arc<RwLock<EntityMonitor>>
+    _entity_monitor: Arc<RwLock<EntityMonitor>>
 }
 
 // When Remove EntityId:
@@ -69,7 +69,7 @@ impl Archetype {
     ) -> Self {
         Self {
             inner: archetypes,
-            entity_monitor: Default::default()
+            _entity_monitor: Default::default()
         }
     }
 
@@ -80,10 +80,10 @@ impl Archetype {
         self.inner.get_mut(resource_id)
     }
 
-    pub fn get_view(
-        &mut self,
+    pub fn get_view<'a>(
+        &'a mut self,
         resource_ids: &[&ResourceId]
-    ) -> Option<EntityStorageUniqueView> {
+    ) -> Option<EntityStorageUniqueView<'a>> {
         if !resource_ids.iter().all(|resource_id| {
             self.inner.contains_key(*resource_id)
         }) {
