@@ -1,9 +1,9 @@
 use aion_state::prelude::RegistryStorage;
 
-use crate::prelude::{EntityId, EntityMap, EntityUniqueView, StoredResource, UniqueResource};
+use crate::prelude::{EntityId, EntityMap, EntityUniqueView, StoredResource, UniqueStoredResource};
 
 pub mod entity_map;
-pub mod resources;
+pub mod stored_resources;
 
 pub struct EntityStorage {
     entity_map: EntityMap
@@ -12,14 +12,14 @@ pub struct EntityStorage {
 impl RegistryStorage for EntityStorage {
     type ValueId = EntityId;
     type OwnedValue = StoredResource;
-    type ReferencedValue<'a> = UniqueResource where Self: 'a;
+    type ReferencedValue<'a> = UniqueStoredResource where Self: 'a;
     type StorageView<'a> = EntityUniqueView<'a> where Self: 'a;
 
     fn get_mut(
         &mut self, 
         value_id: &Self::ValueId
     ) -> Option<Self::ReferencedValue<'_>> {
-        self.entity_map.get_mut(value_id).map(|resource| UniqueResource::new(resource))
+        self.entity_map.get_mut(value_id).map(|resource| UniqueStoredResource::new(resource))
     }
     
     fn get_view(
