@@ -1,13 +1,13 @@
 use aion_state::prelude::StoreValue;
 
-use crate::prelude::{Resource, SharedResource, TransmutableShared};
+use crate::prelude::{UniqueResource, SharedStoredResource, TransmutableShared};
 
-pub struct UniqueResource {
-    resource: Resource
+pub struct UniqueStoredResource {
+    resource: UniqueResource
 }
 
-impl UniqueResource {
-    pub fn new(resource: Resource) -> Self {
+impl UniqueStoredResource {
+    pub fn new(resource: UniqueResource) -> Self {
         Self { resource }
     }
 
@@ -20,8 +20,8 @@ impl UniqueResource {
     }
 }
 
-impl StoreValue for UniqueResource {
-    type Value = UniqueResource;
+impl StoreValue for UniqueStoredResource {
+    type Value = UniqueStoredResource;
 
     fn store(value: Self::Value) -> Self {
         value
@@ -32,10 +32,10 @@ impl StoreValue for UniqueResource {
     }
 }
 
-impl<'a> TransmutableShared for UniqueResource {
-    type AsShared = SharedResource;
+impl<'a> TransmutableShared for UniqueStoredResource {
+    type AsShared = SharedStoredResource;
 
     fn transmute(self) -> Self::AsShared {
-        SharedResource::new(self.resource)
+        SharedStoredResource::new(self.resource)
     }
 }
