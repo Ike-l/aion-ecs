@@ -1,55 +1,130 @@
-use aion_state::prelude::{RegistryAcquireView, RegistryAcquireViewError};
+use std::sync::Arc;
 
-use crate::prelude::{Access, AccessResult, ArchetypeId, ArchetypeRegistry, ArchetypeStorageUniqueView, EntityId, EntityStorageUniqueView, Queryable, ResourceId};
+use aion_state::prelude::{RegistryOwnedAcquireView, RegistryAcquireViewError, ViewReleaser};
+
+use crate::prelude::{Access, AccessResult, ArchetypeId, ArchetypeRegistry, ArchetypeStorageUniqueView, EntityId, EntityStorageUniqueView, EntityUniqueView, Queryable, ResourceId};
 
 pub struct QueryIter<'a, Q: Queryable + 'a> {
     iterable: Vec<(EntityId, Q::Output<'a>)>
 }
 
 impl<'a, Q: Queryable> QueryIter<'a, Q> {
-    pub fn new(archetypes: &'a ArchetypeRegistry) -> Result<Self, RegistryAcquireViewError> {
+
+    pub fn get_relevant_archetype_ids(superset: Vec<ArchetypeId>) -> Vec<ArchetypeId> {
         let include_resource_ids: Vec<ResourceId> = Q::include_resource_ids();
         let exclude_resource_ids: Vec<ResourceId> = Q::exclude_resource_ids();
-
-        let all_archetype_ids = archetypes.keys();
-
-        let archetype_ids: Vec<ArchetypeId> = all_archetype_ids.into_iter().filter(|archetype_id| {
+    
+        superset.into_iter().filter(|archetype_id| {
             include_resource_ids.iter().all(|include_resource_id| {
                 archetype_id.contains(include_resource_id)
             }) &&
             exclude_resource_ids.iter().all(|exclude_resource_id| {
                 !archetype_id.contains(exclude_resource_id)
             })
-        }).collect();
+        }).collect()
+    }
+
+    pub fn new(archetypes: &'a Arc<ArchetypeRegistry>) -> Result<Self, RegistryAcquireViewError> {
+        let archetype_ids = Self::get_relevant_archetype_ids(archetypes.keys());
 
         let resource_details = archetype_ids.into_iter().map(|archetype_id| (archetype_id, None)).collect::<Vec<_>>();
 
-        let result = archetypes.acquire_view::<AccessResult<ArchetypeStorageUniqueView<'a>>>(RegistryAcquireView {
+        let result = archetypes.acquire_released_view::<AccessResult<ArchetypeStorageUniqueView<'a>>>(RegistryOwnedAcquireView {
             user_details: None,
             resource_details,
             access: Access::Shared(1),
         });
 
         match result {
-            Ok(result) => {
-                match result {
+            Ok(mut result) => {
+                match result.as_mut() {
                     AccessResult::Shared(result) => {
                         for (archetype_id, archetype) in result.into_iter() {
-                            let result = archetype.acquire_view::<AccessResult<EntityStorageUniqueView<'a>>>(RegistryAcquireView { 
+                            let resource_ids = Vec::new();
+                            let result = archetype.acquire_released_view::<AccessResult<EntityStorageUniqueView<'a>>>(RegistryOwnedAcquireView { 
                                 user_details: None, 
-                                resource_details: todo!(), 
-                                access: todo!() 
+                                resource_details: resource_ids, 
+                                access: Access::Shared(1) 
                             });
+
+                            match result {
+                                Ok(mut result) => {
+                                    match result.as_mut() {
+                                        AccessResult::Shared(result) => {
+                                            for (resource_id, entity_map) in result.into_iter() {
+                                                let entities = entity_map.keys();
+                                                let resource_details = entities.into_iter().map(|entity| (entity, None)).collect();
+                                                let result = entity_map.acquire_released_view::<AccessResult<EntityUniqueView<'a>>>(RegistryOwnedAcquireView {
+                                                    user_details: None,
+                                                    resource_details,
+                                                    access: todo!()
+                                                });
+
+                                                match result {
+                                                    Ok(mut result) => {
+                                                        match result.as_mut() {
+                                                            AccessResult::Shared(result) => {
+
+                                                                // for (entity_id, resource) in result.into_iter() {
+                                                                //     // resource.as_shared()
+                                                                // }
+                                                            },
+                                                            AccessResult::Unique(result) => {
+                                                                for (entity_id, resource) in result.into_iter() {
+                                                                    // resource.as_unique()
+                                                                }
+                                                            },
+                                                            AccessResult::Owned(_) => todo!(),
+                                                        }
+                                                    },
+                                                    Err(_) => todo!(),
+                                                }
+                                            }
+                                        },
+                                        AccessResult::Unique(_) |
+                                        AccessResult::Owned(_) => todo!(),
+                                    }
+                                },
+                                Err(_) => todo!(),
+                            }
+                            
                         }
                     },
                     AccessResult::Unique(_) |
-                    AccessResult::Owned(_) => unreachable!(),
+                    AccessResult::Owned(_) => todo!(),
                 }
             },
-            Err(err) => {
-                return Err(err);
-            },
+            Err(_) => todo!(),
         }
+
+        // match result {
+        //     Ok(result) => {
+        //         match result {
+        //             AccessResult::Shared(result) => {
+        //                 for (archetype_id, archetype) in result.into_iter() {
+
+        //                     match result {
+        //                         Ok(result) => {
+        //                             match result {
+        //                                 AccessResult::Shared(result) => {
+        //                                     for (resource_id, entity_map) in result.into_iter() {
+
+        //                                     }
+        //                                 },
+        //                                 AccessResult::Unique(_) |
+        //                                 AccessResult::Owned(_) => unreachable!(),
+        //                             }
+        //                         },
+        //                         Err(err) => todo!(),
+        //                     }
+        //                 }
+        //             },
+        //             AccessResult::Unique(_) |
+        //             AccessResult::Owned(_) => unreachable!(),
+        //         }
+        //     },
+        //     Err(err) => todo!(),
+        // }
 
         todo!()
     }
