@@ -2,10 +2,12 @@ use std::{collections::HashMap, sync::OnceLock};
 
 use aion_state::prelude::Registry;
 
-use crate::prelude::{ArchetypeId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, StoredArchetype, TransmutableOwned, TransmutableShared};
+use crate::prelude::{ArchetypeId, ArchetypeStorageUniqueView, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, StoredArchetype, TransmutableOwned, TransmutableShared};
 
 pub mod stored_archetype;
 pub mod resource_id;
+
+pub mod archetype_storage_views;
 
 pub type StoredArchetypeRegistry = Registry<
     StoredArchetype,
@@ -64,6 +66,29 @@ impl ArchetypeStorage {
         archetype_id: &ArchetypeId
     ) -> Option<&mut StoredArchetypeRegistry> {
         self.inner.get_mut(archetype_id).map(|boxed| boxed.as_mut())
+    }
+
+    pub fn get_view<'a>(
+        &'a mut self,
+        archetype_ids: &[&ArchetypeId]
+    ) -> Option<ArchetypeStorageUniqueView<'a>> {
+        if !archetype_ids.iter().all(|archetype_id| {
+            self.inner.contains_key(*archetype_id)
+        }) {
+            return None
+        }
+
+        let archetypes = self.inner.iter_mut().filter_map(|(archetype_id, archetype)| {
+            if archetype_ids.contains(&archetype_id) {
+                Some((archetype_id, archetype.as_mut()))
+            } else {
+                None
+            }
+        }).collect::<Vec<_>>();
+
+        Some(ArchetypeStorageUniqueView::new(
+            archetypes
+        ))
     }
 
     pub fn insert(
