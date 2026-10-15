@@ -1,18 +1,18 @@
 use std::{alloc::{Layout, alloc, dealloc}, any::{TypeId, type_name}, mem::forget, ptr::{self, NonNull}};
 
-use crate::prelude::Resource;
+use crate::prelude::UniqueResource;
 
 pub mod resource;
 
 pub struct StoredResource {
-    resource: Resource,
+    resource: UniqueResource,
     layout: Layout,
     drop_fn: unsafe fn(*mut u8),
 }
 
 impl StoredResource {
     pub fn from_resource(
-        resource: Resource,
+        resource: UniqueResource,
         layout: Layout,
         drop_fn: unsafe fn(*mut u8),
     ) -> Self {
@@ -36,7 +36,7 @@ impl StoredResource {
             raw_ptr
         };
 
-        let resource = Resource::new(
+        let resource = UniqueResource::new(
             ptr, 
             Some(TypeId::of::<T>()), 
             Some(type_name::<T>().to_string()),
