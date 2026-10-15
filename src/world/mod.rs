@@ -1,6 +1,6 @@
 use aion_state::prelude::{Registry, RegistryAcquireAccess};
 
-use crate::prelude::{AccessResult, ArchetypeId, EntityStorageRegistry, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, Queryable, StoredArchetypeRegistry, StoredArchetypeStorage, StoredResource, UniqueResourceView};
+use crate::prelude::{AccessResult, ArchetypeId, EntityStorageRegistry, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, QueryIter, Queryable, ResourceId, StoredArchetypeRegistry, StoredArchetypeStorage, StoredResource, UniqueResource};
 
 pub mod stored_archetype_storage;
 
@@ -32,7 +32,14 @@ pub struct World {
 // additionally could query by runtime ids
 
 impl World {
-    fn query<Q: Queryable>(&self) -> Q::Output {
-        // find which archetype ids are relevant
+    fn query<'a, Q: Queryable>(&'a self) -> QueryIter<'a, Q> {
+        QueryIter::new(&self.archetypes).unwrap()
     }
+
+    // fn query<'a, Q: Queryable>(&'a self) -> Q::Output<'a> {
+        // find which archetype ids are relevant
+        // Q -> Included & Excluded ResourceIds
+        // let included_resource_ids: Vec<ResourceId>;
+        // let excluded_resource_ids: Vec<ResourceId>;
+        // let optional_resource_ids: Vec<ResourceId>;
 }
