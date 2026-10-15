@@ -1,6 +1,6 @@
 use aion_state::prelude::RegistryStorage;
 
-use crate::prelude::{ResourceId, Archetype, EntityStorageRegistry};
+use crate::prelude::{Archetype, EntityStorageRegistry, EntityStorageUniqueView, ResourceId};
 
 pub mod archetype;
 
@@ -8,14 +8,12 @@ pub struct StoredArchetype {
     resource_storage: Archetype
 }
 
-pub struct NotImplementedStoredArchetypeStorageView;
-
 impl RegistryStorage for StoredArchetype {
     type ValueId = ResourceId;
     
     type OwnedValue = EntityStorageRegistry;
     type ReferencedValue<'a> = &'a mut Self::OwnedValue where Self: 'a;
-    type StorageView<'a> = NotImplementedStoredArchetypeStorageView where Self: 'a;
+    type StorageView<'a> = EntityStorageUniqueView<'a> where Self: 'a;
 
     fn get_mut(
         &mut self,
@@ -29,7 +27,7 @@ impl RegistryStorage for StoredArchetype {
         value_ids: &[&Self::ValueId]
     ) -> Option<Self::StorageView<'_>>
     {
-        unimplemented!()
+        self.resource_storage.get_view(value_ids)
     }
 
     fn insert(
