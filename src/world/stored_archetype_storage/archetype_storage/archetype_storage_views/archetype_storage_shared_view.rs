@@ -1,11 +1,13 @@
+use std::sync::Arc;
+
 use crate::prelude::{ArchetypeId, StoredArchetypeRegistry};
 
 pub struct ArchetypeStorageSharedView<'a> {
-    archetypes: std::vec::IntoIter<(&'a ArchetypeId, &'a StoredArchetypeRegistry)>,
+    archetypes: std::vec::IntoIter<(&'a ArchetypeId, &'a Arc<StoredArchetypeRegistry>)>,
 }
 
 impl<'a> ArchetypeStorageSharedView<'a> {
-    pub fn new(archetypes: std::vec::IntoIter<(&'a ArchetypeId, &'a mut StoredArchetypeRegistry)>) -> Self {
+    pub fn new(archetypes: std::vec::IntoIter<(&'a ArchetypeId, &'a mut Arc<StoredArchetypeRegistry>)>) -> Self {
         Self {
             archetypes: archetypes
                 .map(|(archetype_id, archetype)| (archetype_id, &*archetype))
@@ -16,7 +18,7 @@ impl<'a> ArchetypeStorageSharedView<'a> {
 }
 
 impl<'a, 'b> Iterator for ArchetypeStorageSharedView<'a> {
-    type Item = (&'a ArchetypeId, &'a StoredArchetypeRegistry);
+    type Item = (&'a ArchetypeId, &'a Arc<StoredArchetypeRegistry>);
 
     fn next(&mut self) -> Option<Self::Item> {
         self.archetypes.next()

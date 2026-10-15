@@ -1,6 +1,8 @@
-use aion_state::prelude::{Registry, RegistryAcquireAccess};
+use std::sync::Arc;
 
-use crate::prelude::{AccessResult, ArchetypeId, EntityStorageRegistry, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, QueryIter, Queryable, ResourceId, StoredArchetypeRegistry, StoredArchetypeStorage, StoredResource, UniqueResource};
+use aion_state::prelude::Registry;
+
+use crate::prelude::{ArchetypeId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, QueryIter, Queryable, StoredArchetypeStorage};
 
 pub mod stored_archetype_storage;
 
@@ -15,24 +17,15 @@ pub type ArchetypeRegistry = Registry<
 >;
 
 pub struct World {
-    archetypes: ArchetypeRegistry
+    archetypes: Arc<ArchetypeRegistry>
 }
-
-// Query:
-// find which archetype ids are relevant
-// find which resource ids are relevant
-// find which entity ids are relevant
-// create an iterator over (EntityId, Bundle)
-// where a Bundle is a tuple over X
-// where an X is an Option<Raw> | Raw
-// where a Raw is & | &mut
 
 // additionally could query into chunks
 // which produce a tuple of arrays of [EntityId, Bundle[0], .., Bundle[-1]]
 // additionally could query by runtime ids
 
 impl World {
-    fn query<'a, Q: Queryable>(&'a self) -> QueryIter<'a, Q> {
+    pub fn query<'a, Q: Queryable>(&'a self) -> QueryIter<'a, Q> {
         QueryIter::new(&self.archetypes).unwrap()
     }
 

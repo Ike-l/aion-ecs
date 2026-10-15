@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::OnceLock};
+use std::{collections::HashMap, sync::{Arc, OnceLock}};
 
 use aion_state::prelude::Registry;
 
@@ -38,7 +38,7 @@ impl<'a> TransmutableOwned for &'a mut StoredArchetypeRegistry {
 pub static GLOBAL_ARCHETYPE_STORAGE_CAPACITY: OnceLock<usize> = OnceLock::new();
 
 pub struct ArchetypeStorage {
-    inner: HashMap<ArchetypeId, Box<StoredArchetypeRegistry>>,
+    inner: HashMap<ArchetypeId, Arc<StoredArchetypeRegistry>>,
     calculated_len: usize,
     capacity: usize
 }
@@ -64,8 +64,8 @@ impl ArchetypeStorage {
     pub fn get_mut(
         &mut self,
         archetype_id: &ArchetypeId
-    ) -> Option<&mut StoredArchetypeRegistry> {
-        self.inner.get_mut(archetype_id).map(|boxed| boxed.as_mut())
+    ) -> Option<&mut Arc<StoredArchetypeRegistry>> {
+        self.inner.get_mut(archetype_id).map(|boxed| boxed)
     }
 
     pub fn get_view<'a>(
@@ -80,7 +80,7 @@ impl ArchetypeStorage {
 
         let archetypes = self.inner.iter_mut().filter_map(|(archetype_id, archetype)| {
             if archetype_ids.contains(&archetype_id) {
-                Some((archetype_id, archetype.as_mut()))
+                Some((archetype_id, archetype))
             } else {
                 None
             }
@@ -94,28 +94,28 @@ impl ArchetypeStorage {
     pub fn insert(
         &mut self, 
         archetype_id: ArchetypeId, 
-        archetype_storage_registry: StoredArchetypeRegistry
-    ) -> Option<StoredArchetypeRegistry> {
-        let r = self.inner.insert(archetype_id, Box::new(archetype_storage_registry));
+        archetype_storage_registry: Arc<StoredArchetypeRegistry>
+    ) -> Option<Arc<StoredArchetypeRegistry>> {
+        let r = self.inner.insert(archetype_id, archetype_storage_registry);
 
         if r.is_none() {
             self.calculated_len += 1;
         }
 
-        r.map(|r| *r)
+        r
     }
 
     pub fn remove(
         &mut self, 
         archetype_id: &ArchetypeId
-    ) -> Option<StoredArchetypeRegistry> {
+    ) -> Option<Arc<StoredArchetypeRegistry>> {
         let r = self.inner.remove(archetype_id);
 
         if r.is_some() {
             self.calculated_len -= 1;
         }
 
-        r.map(|r| *r)
+        r
     }
 
     pub fn contains_key(
