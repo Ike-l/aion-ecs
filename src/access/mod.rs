@@ -5,6 +5,7 @@ pub enum Access {
     Shared(usize),
     Unique,
     Replace,
+    // Converts a (current) unique access into Shared(1)
     UniqueToShared,
 }
 
