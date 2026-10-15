@@ -62,15 +62,8 @@ impl<'a, Q: Queryable> QueryIter<'a, Q> {
                                                     Ok(result) => {
                                                         match result {
                                                             AccessResult::Shared(result) => {
-
-                                                                // for (entity_id, resource) in result.into_iter() {
-                                                                //     // resource.as_shared()
-                                                                // }
                                                             },
                                                             AccessResult::Unique(result) => {
-                                                                for (entity_id, resource) in result.into_iter() {
-                                                                    // resource.as_unique()
-                                                                }
                                                             },
                                                             AccessResult::Owned(_) => todo!(),
                                                         }

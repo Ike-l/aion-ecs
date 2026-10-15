@@ -7,6 +7,8 @@ pub trait Queryable {
 
     fn include_resource_ids() -> Vec<ResourceId>;
     fn exclude_resource_ids() -> Vec<ResourceId>;
+
+    
 }
 
 impl<T: Fetch> Queryable for T {
