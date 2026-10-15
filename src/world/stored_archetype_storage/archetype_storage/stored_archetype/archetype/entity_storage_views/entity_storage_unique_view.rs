@@ -1,11 +1,13 @@
+use std::sync::Arc;
+
 use crate::prelude::{EntityStorageRegistry, EntityStorageSharedView, ResourceId, TransmutableOwned, TransmutableShared};
 
 pub struct EntityStorageUniqueView<'a> {
-    entity_storages: std::vec::IntoIter<(&'a ResourceId, &'a mut EntityStorageRegistry)>,
+    entity_storages: std::vec::IntoIter<(&'a ResourceId, &'a mut Arc<EntityStorageRegistry>)>,
 }
 
 impl<'a> EntityStorageUniqueView<'a> {
-    pub fn new(entity_storages: Vec<(&'a ResourceId, &'a mut EntityStorageRegistry)>) -> Self {
+    pub fn new(entity_storages: Vec<(&'a ResourceId, &'a mut Arc<EntityStorageRegistry>)>) -> Self {
         Self {
             entity_storages: entity_storages.into_iter(),
         }
@@ -13,7 +15,7 @@ impl<'a> EntityStorageUniqueView<'a> {
 }
 
 impl<'a, 'b> Iterator for EntityStorageUniqueView<'a> {
-    type Item = (&'a ResourceId, &'a mut EntityStorageRegistry);
+    type Item = (&'a ResourceId, &'a mut Arc<EntityStorageRegistry>);
 
     fn next(&mut self) -> Option<Self::Item> {
         self.entity_storages.next()
