@@ -3,12 +3,13 @@ use std::{collections::HashMap, sync::Arc};
 use aion_state::prelude::Registry;
 use parking_lot::RwLock;
 
-use crate::prelude::{EntityId, EntityMonitor, EntityStorage, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, TransmutableOwned, TransmutableShared};
+use crate::prelude::{EntityId, EntityMonitor, EntityStorage, EntityStorageUniqueView, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, ResourceId, TransmutableOwned, TransmutableShared};
 
 
 pub mod entity_id;
 pub mod entity_storage;
 pub mod entity_monitor;
+pub mod entity_storage_views;
 
 pub type EntityStorageRegistry = Registry<
     EntityStorage,
@@ -77,6 +78,29 @@ impl Archetype {
         resource_id: &ResourceId,
     ) -> Option<&mut EntityStorageRegistry> {
         self.inner.get_mut(resource_id)
+    }
+
+    pub fn get_view(
+        &mut self,
+        resource_ids: &[&ResourceId]
+    ) -> Option<EntityStorageUniqueView> {
+        if !resource_ids.iter().all(|resource_id| {
+            self.inner.contains_key(*resource_id)
+        }) {
+            return None
+        }
+
+        let entity_storages = self.inner.iter_mut().filter_map(|(resource_id, entity_storage)| {
+            if resource_ids.contains(&resource_id) {
+                Some((resource_id, entity_storage))
+            } else {
+                None
+            }
+        }).collect::<Vec<_>>();
+
+        Some(EntityStorageUniqueView::new(
+            entity_storages
+        ))
     }
 
     pub fn insert(
