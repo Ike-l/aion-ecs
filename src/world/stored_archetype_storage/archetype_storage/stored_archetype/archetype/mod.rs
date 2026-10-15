@@ -38,7 +38,7 @@ impl<'a> TransmutableOwned for &'a mut EntityStorageRegistry {
 }
 
 pub struct Archetype {
-    inner: HashMap<ResourceId, Arc<EntityStorageRegistry>>,
+    inner: HashMap<ResourceId, EntityStorageRegistry>,
     _entity_monitor: Arc<RwLock<EntityMonitor>>
 }
 
@@ -65,7 +65,7 @@ pub struct Archetype {
 
 impl Archetype {
     pub fn new_empty(
-        archetypes: HashMap<ResourceId, Arc<EntityStorageRegistry>>
+        archetypes: HashMap<ResourceId, EntityStorageRegistry>
     ) -> Self {
         Self {
             inner: archetypes,
@@ -76,7 +76,7 @@ impl Archetype {
     pub fn get_mut(
         &mut self,
         resource_id: &ResourceId,
-    ) -> Option<&mut Arc<EntityStorageRegistry>> {
+    ) -> Option<&mut EntityStorageRegistry> {
         self.inner.get_mut(resource_id)
     }
 
@@ -106,15 +106,15 @@ impl Archetype {
     pub fn insert(
         &mut self,
         _resource_id: ResourceId,
-        _resource_storage_registry: Arc<EntityStorageRegistry>
-    ) -> Option<Arc<EntityStorageRegistry>> {
+        _resource_storage_registry: EntityStorageRegistry
+    ) -> Option<EntityStorageRegistry> {
         panic!("Archetype should never be modified!");
     }
 
     pub fn remove(
         &mut self,
         _resource_id: &ResourceId
-    ) -> Option<Arc<EntityStorageRegistry>> {
+    ) -> Option<EntityStorageRegistry> {
         panic!("Archetype should never be modified!");
     }
     

@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use aion_state::prelude::RegistryStorage;
 
 use crate::prelude::{Archetype, EntityStorageRegistry, EntityStorageUniqueView, ResourceId};
@@ -13,7 +11,7 @@ pub struct StoredArchetype {
 impl RegistryStorage for StoredArchetype {
     type ValueId = ResourceId;
     
-    type OwnedValue = Arc<EntityStorageRegistry>;
+    type OwnedValue = EntityStorageRegistry;
     type ReferencedValue<'a> = &'a mut Self::OwnedValue where Self: 'a;
     type StorageView<'a> = EntityStorageUniqueView<'a> where Self: 'a;
 

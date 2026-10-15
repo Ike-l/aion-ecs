@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::{Arc, OnceLock}};
+use std::{collections::HashMap, sync::OnceLock};
 
 use aion_state::prelude::Registry;
 
@@ -38,7 +38,7 @@ impl<'a> TransmutableOwned for &'a mut StoredArchetypeRegistry {
 pub static GLOBAL_ARCHETYPE_STORAGE_CAPACITY: OnceLock<usize> = OnceLock::new();
 
 pub struct ArchetypeStorage {
-    inner: HashMap<ArchetypeId, Arc<StoredArchetypeRegistry>>,
+    inner: HashMap<ArchetypeId, StoredArchetypeRegistry>,
     calculated_len: usize,
     capacity: usize
 }
@@ -64,7 +64,7 @@ impl ArchetypeStorage {
     pub fn get_mut(
         &mut self,
         archetype_id: &ArchetypeId
-    ) -> Option<&mut Arc<StoredArchetypeRegistry>> {
+    ) -> Option<&mut StoredArchetypeRegistry> {
         self.inner.get_mut(archetype_id).map(|boxed| boxed)
     }
 
@@ -94,8 +94,8 @@ impl ArchetypeStorage {
     pub fn insert(
         &mut self, 
         archetype_id: ArchetypeId, 
-        archetype_storage_registry: Arc<StoredArchetypeRegistry>
-    ) -> Option<Arc<StoredArchetypeRegistry>> {
+        archetype_storage_registry: StoredArchetypeRegistry
+    ) -> Option<StoredArchetypeRegistry> {
         let r = self.inner.insert(archetype_id, archetype_storage_registry);
 
         if r.is_none() {
@@ -108,7 +108,7 @@ impl ArchetypeStorage {
     pub fn remove(
         &mut self, 
         archetype_id: &ArchetypeId
-    ) -> Option<Arc<StoredArchetypeRegistry>> {
+    ) -> Option<StoredArchetypeRegistry> {
         let r = self.inner.remove(archetype_id);
 
         if r.is_some() {

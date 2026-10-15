@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use aion_state::prelude::Registry;
 
 use crate::prelude::{ArchetypeId, InnerAccessStorage, InnerBlacklistStorage, InnerControlStorage, InnerCredentialStorage, InnerReservationStorage, InnerWhitelistStorage, QueryIter, Queryable, StoredArchetypeStorage};
@@ -17,7 +15,7 @@ pub type ArchetypeRegistry = Registry<
 >;
 
 pub struct World {
-    archetypes: Arc<ArchetypeRegistry>
+    archetypes: ArchetypeRegistry
 }
 
 // additionally could query into chunks
