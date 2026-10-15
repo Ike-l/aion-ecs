@@ -1,8 +1,8 @@
-use crate::prelude::{TransmutableOwned, UniqueResource};
+use crate::prelude::{TransmutableOwned, UniqueStoredResource};
 
 pub struct NotImplementedOwnedResource;
 
-impl<'a> TransmutableOwned for UniqueResource {
+impl<'a> TransmutableOwned for UniqueStoredResource {
     type AsOwned = NotImplementedOwnedResource;
 
     fn transmute(self) -> Self::AsOwned {
