@@ -2,11 +2,10 @@ use std::{alloc::{Layout, alloc, dealloc}, ptr::{self, NonNull}, sync::Arc};
 
 use parking_lot::RwLock;
 
-use crate::prelude::{EntityId, EntityMonitor, Resource, StorageIterMut, StoredResource};
+use crate::prelude::{EntityId, EntityMonitor, Resource, EntityUniqueView, StoredResource};
 
 pub mod stored_resource;
-pub mod storage_iter;
-pub mod storage_iter_mut;
+pub mod entity_views;
 
 pub const ITEMS_PER_ENTITY_STORAGE_PAGE: usize = 1024;
 
@@ -125,8 +124,8 @@ impl EntityMap {
         Some(Resource::new(ptr, None, None))
     }
 
-    pub fn iter_mut(&mut self, target_entities: &[&EntityId]) -> Option<StorageIterMut<'_>> {
-        Some(StorageIterMut::new(
+    pub fn iter_mut(&mut self, target_entities: &[&EntityId]) -> Option<EntityUniqueView<'_>> {
+        Some(EntityUniqueView::new(
             &self.pages,
             Arc::clone(&self.entity_monitor),
             target_entities.into_iter().map(|&target_entity_id| target_entity_id.clone()).collect(),
