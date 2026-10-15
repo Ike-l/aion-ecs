@@ -17,6 +17,8 @@ pub mod query;
 pub mod prelude {
     pub use super::{
         world::{
+            World,
+            ArchetypeRegistry,
             stored_archetype_storage::{
                 StoredArchetypeStorage,
                 archetype_id::{
@@ -26,6 +28,14 @@ pub mod prelude {
                     ArchetypeStorage,
                     StoredArchetypeRegistry,
                     GLOBAL_ARCHETYPE_STORAGE_CAPACITY,
+                    archetype_storage_views::{
+                        archetype_storage_unique_view::{
+                            ArchetypeStorageUniqueView
+                        },
+                        archetype_storage_shared_view::{
+                            ArchetypeStorageSharedView
+                        }
+                    },
                     resource_id::{
                         ResourceId
                     },
@@ -34,30 +44,40 @@ pub mod prelude {
                         archetype::{
                             Archetype,
                             EntityStorageRegistry,
+                            entity_storage_views::{
+                                entity_storage_shared_view::{
+                                    EntityStorageSharedView
+                                },
+                                entity_storage_unique_view::{
+                                    EntityStorageUniqueView
+                                }
+                            },
                             entity_monitor::{
                                 EntityMonitor
                             },
                             entity_storage::{
                                 EntityStorage,
-                                resource_views::{
-                                    unique_resource_view::{
-                                        UniqueResourceView
+                                resources::{
+                                    unique_resource::{
+                                        UniqueResource
                                     },
-                                    shared_resource_view::{
-                                        SharedResourceView
+                                    shared_resource::{
+                                        SharedResource
                                     },
-                                    owned_resource_view::{
+                                    owned_resource::{
                                         NotImplementedOwnedResource
                                     }
                                 },
                                 entity_map::{
                                     EntityMap,
                                     ITEMS_PER_ENTITY_STORAGE_PAGE,
-                                    storage_iter::{
-                                        StorageIter
-                                    },
-                                    storage_iter_mut::{
-                                        StorageIterMut
+                                    entity_views::{
+                                        entity_shared_view::{
+                                            EntitySharedView
+                                        },
+                                        entity_unique_view::{
+                                            EntityUniqueView
+                                        },
                                     },
                                     stored_resource::{
                                         StoredResource,
@@ -110,16 +130,37 @@ pub mod prelude {
             Password
         },
         query::{
+            query_iter::{
+                QueryIter
+            },
+            fetch::{
+                Fetch
+            },
+            optional::{
+                Optional
+            },
+            or::{
+                Or
+            },
             queryable::{
-                And,
-                Data,
-                Fetch,
-                Filter,
-                Or,
                 Queryable,
-                With,
-                Without,
-            }
+                transforms::{
+                    with::{
+                        With
+                    },
+                    without::{
+                        Without
+                    }
+                }
+            },
+            transformer::{
+                Transformer,
+                transforms::{
+                    only::{
+                        Only
+                    }
+                }
+            },
         }
     };
 }
