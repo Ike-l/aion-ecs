@@ -2,7 +2,7 @@ use std::{alloc::{Layout, alloc, dealloc}, ptr::{self, NonNull}, sync::Arc};
 
 use parking_lot::RwLock;
 
-use crate::prelude::{EntityId, EntityMonitor, Resource, EntityUniqueView, StoredResource};
+use crate::prelude::{EntityId, EntityMonitor, UniqueResource, EntityUniqueView, StoredResource};
 
 pub mod stored_resource;
 pub mod entity_views;
@@ -89,7 +89,7 @@ impl EntityMap {
             unsafe { (self.write_fn)(src_ptr, raw_ptr) }
         }
 
-        let resource = Resource::new(raw_ptr, None, None);
+        let resource = UniqueResource::new(raw_ptr, None, None);
 
         Some(StoredResource::from_resource(
             resource, layout, self.drop_fn
@@ -115,13 +115,13 @@ impl EntityMap {
         None
     }
 
-    pub fn get_mut(&mut self, entity_id: &EntityId) -> Option<Resource> {
+    pub fn get_mut(&mut self, entity_id: &EntityId) -> Option<UniqueResource> {
         if !self.entity_monitor.read().valid(entity_id) {
             return None
         }
 
         let ptr = unsafe { self.get_raw_ptr_mut(entity_id.index) };
-        Some(Resource::new(ptr, None, None))
+        Some(UniqueResource::new(ptr, None, None))
     }
 
     pub fn iter_mut(&mut self, target_entities: &[&EntityId]) -> Option<EntityUniqueView<'_>> {
