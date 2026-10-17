@@ -1,1 +1,1 @@
-remove arcs in favour of manual releasing
+So inputs to &T & &mut T must be EntityStorageViews corresponding to 

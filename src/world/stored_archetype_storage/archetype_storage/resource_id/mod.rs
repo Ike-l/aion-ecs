@@ -1,6 +1,6 @@
 use std::any::TypeId;
 
-#[derive(PartialEq, Eq, Hash, Clone)]
+#[derive(PartialEq, Eq, Hash, Clone, Debug)]
 pub struct ResourceId {
     type_id: TypeId    
 }

@@ -1,6 +1,6 @@
-use std::marker::PhantomData;
+use std::{collections::{HashMap, HashSet}, marker::PhantomData};
 
-use crate::prelude::{Queryable, ResourceId, Transformer};
+use crate::prelude::{AccessResult, EntityUniqueView, Queryable, ResourceId, Transformer};
 
 /// Transforms query Q by skipping entities satisfying transformer T
 pub struct Without<Q, T> { _p: PhantomData<(Q, T)> }
@@ -18,5 +18,19 @@ impl<Q: Queryable, T: Transformer> Queryable for Without<Q, T> {
 
     fn include_resource_ids() -> Vec<ResourceId> {
         Q::include_resource_ids()
+    }
+
+    fn execute<'a>(
+        input: Vec<(
+            &'a ResourceId, 
+            AccessResult<EntityUniqueView<'a>>
+        )>
+    ) -> Option<Self::Output<'a>> where Self: 'a {
+        Q::execute(input)
+    }
+
+    fn transform<'a>(input: &mut Vec<(&'a ResourceId, AccessResult<EntityUniqueView<'a>>)>) {
+        // remove from input where ResourceId is in include_resource_ids
+        // <cannot include from input where ResourceId is in exclude_resource_ids (expects them)>
     }
 }
